@@ -326,6 +326,17 @@ img.av{background:var(--surface-4)}
 /* Feed tab swap: quick directional crossfade between For You / Latest */
 #posts.feed-anim{transition:transform .17s var(--ease-soft),opacity .17s var(--ease-soft)}
 
+/* Mellow loader — a little campfire toasting a marshmallow */
+.mellow-loader{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px 0}
+.ml-stage{position:relative;width:64px;height:60px}
+.ml-marsh{position:absolute;top:0;left:50%;width:22px;height:17px;margin-left:-11px;background:#efe6d8;border:2px solid #cbb89f;border-radius:6px;animation:ml-bob 1.7s var(--ease-soft) infinite}
+.ml-stick{position:absolute;top:12px;left:50%;width:2px;height:30px;margin-left:-1px;background:#8a6a4a;transform:rotate(18deg);transform-origin:top}
+.ml-flame{position:absolute;bottom:0;left:50%;width:24px;height:32px;margin-left:-12px;background:linear-gradient(to top,#ff5f2e,#ffb347 58%,#ffe08a);border-radius:50% 50% 50% 50%/62% 62% 40% 40%;transform-origin:50% 92%;animation:ml-flicker .48s ease-in-out infinite alternate;filter:drop-shadow(0 0 7px rgba(255,130,50,.55))}
+.ml-flame::before{content:"";position:absolute;inset:7px 6px 3px;background:linear-gradient(to top,#ffd23c,#fff3b0);border-radius:inherit;opacity:.92}
+.ml-label{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--text-faint)}
+@keyframes ml-flicker{0%{transform:scaleY(1) scaleX(1) rotate(-3deg)}100%{transform:scaleY(1.14) scaleX(.92) rotate(3deg)}}
+@keyframes ml-bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-4px) rotate(1deg)}}
+
 /* Respect users who prefer less motion */
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
