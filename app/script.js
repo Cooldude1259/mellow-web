@@ -160,7 +160,7 @@
   async function openMyReports() {
     if (!authUserId) return alert('Sign in to view your reports.');
     showScreen('myReports');
-    reportEls.myReportsList.innerHTML = '<p class="empty">Loading…</p>';
+    reportEls.myReportsList.innerHTML = loaderHtml('Loading your reports…');
     try {
       const { data, error } = await supabase.from('Reports')
         .select('id, post_id, comment_id, reason, status, created_at')
@@ -204,6 +204,11 @@
 
   // ---- Utils ----
   const esc = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+
+  // Cute campfire loading animation (self-contained; used for loading states).
+  function loaderHtml(label = 'Toasting…') {
+    return `<div class="mellow-loader"><div class="ml-stage"><span class="ml-marsh"></span><span class="ml-stick"></span><span class="ml-flame"></span></div><div class="ml-label">${esc(label)}</div></div>`;
+  }
 
   let _toastTimer = null;
   function showToast(msg, type = 'error', duration = 5000) {
@@ -444,7 +449,7 @@
   }
 
   async function loadAreaFeed() {
-    els.posts.innerHTML = '<p class="empty">Loading…</p>';
+    els.posts.innerHTML = loaderHtml('Loading this area…');
     const { data, error } = await supabase.from('Posts').select(REST_SELECT)
       .eq('area_id', selectedAreaId).neq('status', 'removed')
       .order('created_at', { ascending: false }).limit(100);
@@ -674,7 +679,7 @@
   }
 
   async function runSearch(q) {
-    els.searchResults.innerHTML = '<p class="empty">Searching…</p>';
+    els.searchResults.innerHTML = loaderHtml('Searching…');
     const [postsRes, usersRes] = await Promise.all([
       supabase.from('Posts').select(REST_SELECT).or(`title.ilike.%${q}%,content.ilike.%${q}%`).neq('status', 'removed').order('created_at', { ascending: false }).limit(30),
       supabase.from('Users').select('"creator-id", Name, avatar_url, user_id').ilike('Name', `%${q}%`).limit(8),
@@ -847,7 +852,7 @@
       </div>`;
   }
   async function loadComments(postId, box) {
-    box.innerHTML = '<p class="empty">Loading…</p>';
+    box.innerHTML = loaderHtml('Loading comments…');
     const { data, error } = await supabase.from('Comments')
       .select('"comment-id", content, created_at, Users(Name, avatar_url, user_id)')
       .eq('post-id', postId).neq('status', 'removed').order('created_at', { ascending: true });
@@ -916,7 +921,7 @@
 
   async function openProfile(userId) {
     activateScreen('profile'); // switch view without re-triggering openSelfProfile
-    els.profileBody.innerHTML = '<p class="empty">Loading profile…</p>';
+    els.profileBody.innerHTML = loaderHtml('Loading profile…');
     const { data: prof, error } = await supabase.from('Users').select('"creator-id", Name, avatar_url, bio, user_id').eq('user_id', userId).single();
     if (error || !prof) { els.profileBody.innerHTML = '<p class="empty">Profile not found.</p>'; return; }
 
@@ -962,7 +967,7 @@
         </div>
       </div>
       <div class="section-label">Your posts</div>
-      <div id="profilePosts"><p class="empty">Loading…</p></div>`;
+      <div id="profilePosts">${loaderHtml('Loading posts…')}</div>`;
 
     const { data: posts } = await supabase.from('Posts').select(REST_SELECT).eq('creator-id', prof['creator-id']).neq('status', 'removed').order('created_at', { ascending: false }).limit(100);
     const ids = (posts || []).map((p) => p['post-id']);
