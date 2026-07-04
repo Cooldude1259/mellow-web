@@ -204,12 +204,15 @@
 
   // ---- Settings ----
   function openSettings() {
-    const t = $('moreMotionToggle');
-    if (t) t.checked = !!(window.isMoreMotion && window.isMoreMotion());
+    const mm = $('moreMotionToggle');
+    if (mm) mm.checked = !!(window.isMoreMotion && window.isMoreMotion());
+    const tt = $('tadcToggle');
+    if (tt) tt.checked = !!(window.isTadc && window.isTadc());
     $('settingsModal')?.classList.add('open');
   }
   function closeSettings() { $('settingsModal')?.classList.remove('open'); }
   $('moreMotionToggle')?.addEventListener('change', (e) => { window.setMoreMotion?.(e.target.checked); });
+  $('tadcToggle')?.addEventListener('change', (e) => { window.setTadc?.(e.target.checked); });
   $('settingsModal')?.addEventListener('click', (e) => { if (e.target === $('settingsModal')) closeSettings(); });
 
   // ---- Utils ----

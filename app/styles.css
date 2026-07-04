@@ -331,6 +331,12 @@ img.av{background:var(--surface-4)}
 html.motion-more .rail-gif{display:block}
 @media(prefers-reduced-motion:reduce){.rail-gif{display:none!important}}
 
+/* TADC mode — characters floating in the viewport corners, on top of everything */
+.tadc-corner{display:none;position:fixed;bottom:0;z-index:1500;max-height:34vh;max-width:36vw;height:auto;width:auto;pointer-events:none;user-select:none}
+.tadc-left{left:0}
+.tadc-right{right:0}
+html.tadc .tadc-corner{display:block}
+
 /* Settings toggle switch */
 .setting-row{display:flex;align-items:center;gap:16px;justify-content:space-between;cursor:pointer}
 .setting-text{flex:1}
