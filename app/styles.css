@@ -326,6 +326,11 @@ img.av{background:var(--surface-4)}
 /* Feed tab swap: quick directional crossfade between For You / Latest */
 #posts.feed-anim{transition:transform .17s var(--ease-soft),opacity .17s var(--ease-soft)}
 
+/* Animated banner on the Trending areas card (more-motion only) */
+.rail-gif{display:none;width:calc(100% + 36px);height:68px;margin:-18px -18px 14px;object-fit:cover;border-radius:var(--radius-card) var(--radius-card) 0 0}
+html.motion-more .rail-gif{display:block}
+@media(prefers-reduced-motion:reduce){.rail-gif{display:none!important}}
+
 /* Settings toggle switch */
 .setting-row{display:flex;align-items:center;gap:16px;justify-content:space-between;cursor:pointer}
 .setting-text{flex:1}
