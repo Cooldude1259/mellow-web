@@ -331,7 +331,17 @@ img.av{background:var(--surface-4)}
 html.motion-more .rail-gif{display:block}
 @media(prefers-reduced-motion:reduce){.rail-gif{display:none!important}}
 
-/* TADC mode — characters floating in the viewport corners, on top of everything */
+/* TADC mode — darken everything, vignette the edges, solid black corners */
+#tadcOverlay{display:none;position:fixed;inset:0;z-index:1400;pointer-events:none;
+  background:
+    radial-gradient(72% 56% at 0% 100%, #000 0%, rgba(0,0,0,.92) 22%, transparent 62%),
+    radial-gradient(72% 56% at 100% 100%, #000 0%, rgba(0,0,0,.92) 22%, transparent 62%),
+    radial-gradient(132% 100% at 50% 44%, transparent 50%, rgba(0,0,0,.62) 100%),
+    rgba(0,0,0,.2);
+}
+html.tadc #tadcOverlay{display:block}
+
+/* Characters float in the viewport corners, on top of everything (incl. the black) */
 .tadc-corner{display:none;position:fixed;bottom:0;z-index:1500;max-height:34vh;max-width:36vw;height:auto;width:auto;pointer-events:none;user-select:none}
 .tadc-left{left:0}
 .tadc-right{right:0}
