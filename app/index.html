@@ -51,11 +51,25 @@
       window.resetActiveStyle = resetActiveStyle;
       // Apply a locally-saved style right away (no flash, no dependencies).
       try { var c = localStorage.getItem(STYLE_KEY); if (c) applyTheme(JSON.parse(c)); } catch (e) {}
+
+      // Motion mode: calm by default, "more motion" is opt-in. The html class
+      // gates extra animations (CSS) and the escape button (CSS shows it).
+      var MOTION_KEY = 'mellow_more_motion';
+      function setMoreMotion(on) {
+        document.documentElement.classList.toggle('motion-more', !!on);
+        try { localStorage.setItem(MOTION_KEY, on ? '1' : '0'); } catch (e) {}
+        var t = document.getElementById('moreMotionToggle');
+        if (t) t.checked = !!on;
+      }
+      window.setMoreMotion = setMoreMotion;
+      window.isMoreMotion = function () { return document.documentElement.classList.contains('motion-more'); };
+      try { if (localStorage.getItem(MOTION_KEY) === '1') document.documentElement.classList.add('motion-more'); } catch (e) {}
     })();
   </script>
 </head>
 <body>
   <div id="toast"></div>
+  <button id="motionOffBtn" data-act="motion-off">🎢 Turn off more motion</button>
   <div class="alpha-banner">Early alpha — still building, so things may wobble. Thanks for being here.</div>
 
   <!-- Mobile top bar -->
@@ -274,6 +288,26 @@
       <div class="modal-footer">
         <button class="btn-cancel" id="suggestAreaCancel">Cancel</button>
         <button class="btn-primary-modal" id="suggestAreaSubmit">Submit Suggestion</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-dialog">
+      <button class="modal-close" data-act="close-settings">×</button>
+      <div class="modal-header">⚙️ Settings</div>
+      <div class="modal-body">
+        <label class="setting-row">
+          <div class="setting-text">
+            <div class="setting-title">Add more motion</div>
+            <div class="setting-sub">Mellow keeps things calm by default. Turn this on for extra playful animation — you can switch it off any time from the button up top.</div>
+          </div>
+          <span class="switch"><input type="checkbox" id="moreMotionToggle" /><span class="switch-track"></span></span>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary-modal" data-act="close-settings">Done</button>
       </div>
     </div>
   </div>

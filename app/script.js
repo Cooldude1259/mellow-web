@@ -202,6 +202,16 @@
     }
   }
 
+  // ---- Settings ----
+  function openSettings() {
+    const t = $('moreMotionToggle');
+    if (t) t.checked = !!(window.isMoreMotion && window.isMoreMotion());
+    $('settingsModal')?.classList.add('open');
+  }
+  function closeSettings() { $('settingsModal')?.classList.remove('open'); }
+  $('moreMotionToggle')?.addEventListener('change', (e) => { window.setMoreMotion?.(e.target.checked); });
+  $('settingsModal')?.addEventListener('click', (e) => { if (e.target === $('settingsModal')) closeSettings(); });
+
   // ---- Utils ----
   const esc = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
 
@@ -946,6 +956,7 @@
       ? `<div class="profile-audiences" style="margin-top:12px"><div class="label">Your audiences (from what you engage with)</div><div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:6px">${audiences.map((t) => `<span class="ptag">#${esc(t)}</span>`).join('')}</div></div>`
       : '';
     const reportsHtml = isSelf ? `<button class="ghost-btn" data-act="my-reports" style="margin-top:8px;font-size:13px">My Reports</button>` : '';
+    const settingsHtml = isSelf ? `<button class="ghost-btn" data-act="settings" style="margin-top:8px;margin-left:8px;font-size:13px">⚙️ Settings</button>` : '';
 
     const handle = '@' + (prof.Name || 'member').toLowerCase().replace(/\s+/g, '');
     els.profileBody.innerHTML = `
@@ -963,7 +974,7 @@
           </div>
           ${audiencesHtml}
           ${actionHtml}
-          ${reportsHtml}
+          ${reportsHtml}${settingsHtml}
         </div>
       </div>
       <div class="section-label">Your posts</div>
@@ -1040,6 +1051,9 @@
       if (act === 'dismiss-ann') { dismiss(parseInt(actEl.dataset.annId, 10)); loadAnnouncements(); return; }
       if (act === 'my-reports') { openMyReports(); return; }
       if (act === 'feedback') { openFeedback(); return; }
+      if (act === 'settings') { openSettings(); return; }
+      if (act === 'close-settings') { closeSettings(); return; }
+      if (act === 'motion-off') { window.setMoreMotion?.(false); return; }
       return;
     }
     // Close open menus when clicking outside
