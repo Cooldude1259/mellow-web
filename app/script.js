@@ -903,11 +903,71 @@
       await loadComments(postId, box); bumpCommentCount(postId, +1);
     } catch (err) { console.error(err); input.disabled = false; }
   }
+  // more-motion delete flourish: the element flies up, a shredder fades in, and
+  // the element is cloned into vertical strips that fall out the bottom.
+  // Resolves true if it handled removal, false if the caller should remove normally.
+  function shredAway(el) {
+    return new Promise((resolve) => {
+      const on = document.documentElement.classList.contains('motion-more')
+        && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      if (!el || !on) { resolve(false); return; }
+
+      // 1) fly up out of place
+      el.style.transition = 'transform .2s var(--ease-squish)';
+      el.style.transform = 'translateY(-22px)';
+      setTimeout(() => {
+        const rect = el.getBoundingClientRect();
+        const stage = document.createElement('div');
+        stage.className = 'shred-stage';
+        stage.style.cssText = `left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px`;
+
+        const N = Math.max(8, Math.round(rect.width / 26));
+        for (let i = 0; i < N; i++) {
+          const strip = document.createElement('div');
+          strip.className = 'shred-strip';
+          strip.style.width = rect.width + 'px';
+          strip.style.clipPath = `inset(0 ${(100 - (i + 1) * 100 / N).toFixed(3)}% 0 ${(i * 100 / N).toFixed(3)}%)`;
+          strip.style.setProperty('--fall', (70 + Math.random() * 90).toFixed(0) + 'px');
+          strip.style.setProperty('--rot', ((Math.random() * 2 - 1) * 9).toFixed(1) + 'deg');
+          strip.style.animationDelay = (Math.random() * 0.12).toFixed(2) + 's';
+          const clone = el.cloneNode(true);
+          clone.style.margin = '0';
+          clone.style.width = rect.width + 'px';
+          clone.style.transform = 'none';
+          strip.appendChild(clone);
+          stage.appendChild(strip);
+        }
+        const mach = document.createElement('div');
+        mach.className = 'shred-machine';
+        stage.appendChild(mach);
+
+        el.style.visibility = 'hidden'; // hide the real one; strips carry the visual
+        document.body.appendChild(stage);
+
+        setTimeout(() => {
+          stage.remove();
+          // collapse the row so siblings slide up, then remove
+          el.style.visibility = '';
+          el.style.transition = 'height .22s ease, opacity .18s ease, margin .22s ease, padding .22s ease';
+          el.style.height = el.offsetHeight + 'px'; void el.offsetHeight;
+          el.style.height = '0'; el.style.opacity = '0';
+          el.style.marginTop = '0'; el.style.marginBottom = '0';
+          el.style.paddingTop = '0'; el.style.paddingBottom = '0';
+          el.style.overflow = 'hidden';
+          setTimeout(() => { el.remove(); resolve(true); }, 230);
+        }, 820);
+      }, 200);
+    });
+  }
+
   async function deleteComment(commentId, postId, box) {
+    const commentEl = box.querySelector(`.comment[data-comment-id="${commentId}"]`);
     try {
       const { error } = await supabase.from('Comments').delete().eq('comment-id', commentId);
       if (error) throw error;
-      await loadComments(postId, box); bumpCommentCount(postId, -1);
+      const handled = await shredAway(commentEl);
+      bumpCommentCount(postId, -1);
+      if (!handled) await loadComments(postId, box);
     } catch (err) { console.error(err); }
   }
   function bumpCommentCount(postId, delta) {
@@ -919,10 +979,12 @@
   // ---- Delete post ----
   async function deletePost(postId) {
     if (!confirm('Delete this post? This also removes its likes and comments.')) return;
+    const card = document.querySelector(`.card[data-post-id="${postId}"]`);
     try {
       const { error } = await supabase.from('Posts').delete().eq('post-id', postId);
       if (error) throw error;
-      document.querySelector(`.card[data-post-id="${postId}"]`)?.remove();
+      const handled = await shredAway(card);
+      if (!handled) card?.remove();
     } catch (err) { console.error(err); }
   }
 

@@ -377,6 +377,15 @@ html.motion-more .fab-tab{animation:mm-bob 2s var(--ease-soft) infinite}
 @keyframes mm-pop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
 @keyframes mm-nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}
 
+/* Shredder delete flourish (more-motion) */
+.shred-stage{position:fixed;z-index:1450;pointer-events:none;overflow:visible}
+.shred-strip{position:absolute;left:0;top:0;overflow:hidden;will-change:transform,opacity;animation:shred-fall .82s cubic-bezier(.4,0,.7,1) forwards}
+@keyframes shred-fall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(var(--fall,110px)) rotate(var(--rot,0));opacity:0}}
+.shred-machine{position:absolute;left:-5px;right:-5px;top:-15px;height:28px;background:linear-gradient(#3b414d,#20242c);border-radius:6px;box-shadow:0 5px 16px rgba(0,0,0,.4);opacity:0;animation:shred-machine .16s ease forwards}
+.shred-machine::before{content:"";position:absolute;left:9px;right:9px;top:9px;height:4px;background:#0a0c10;border-radius:3px}
+.shred-machine::after{content:"";position:absolute;left:9px;right:9px;top:15px;height:8px;background:repeating-linear-gradient(90deg,#cfd3db 0 4px,transparent 4px 9px);clip-path:polygon(0 0,4% 100%,8% 0,12% 100%,16% 0,20% 100%,24% 0,28% 100%,32% 0,36% 100%,40% 0,44% 100%,48% 0,52% 100%,56% 0,60% 100%,64% 0,68% 100%,72% 0,76% 100%,80% 0,84% 100%,88% 0,92% 100%,96% 0,100% 100%,100% 0,0 0)}
+@keyframes shred-machine{to{opacity:1}}
+
 /* Mellow loader — a little campfire toasting a marshmallow */
 .mellow-loader{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px 0}
 .ml-stage{position:relative;width:64px;height:60px}
