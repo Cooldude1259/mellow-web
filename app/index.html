@@ -64,12 +64,26 @@
       window.setMoreMotion = setMoreMotion;
       window.isMoreMotion = function () { return document.documentElement.classList.contains('motion-more'); };
       try { if (localStorage.getItem(MOTION_KEY) === '1') document.documentElement.classList.add('motion-more'); } catch (e) {}
+
+      // TADC mode: characters peek in from the bottom corners.
+      var TADC_KEY = 'mellow_tadc';
+      function setTadc(on) {
+        document.documentElement.classList.toggle('tadc', !!on);
+        try { localStorage.setItem(TADC_KEY, on ? '1' : '0'); } catch (e) {}
+        var t = document.getElementById('tadcToggle');
+        if (t) t.checked = !!on;
+      }
+      window.setTadc = setTadc;
+      window.isTadc = function () { return document.documentElement.classList.contains('tadc'); };
+      try { if (localStorage.getItem(TADC_KEY) === '1') document.documentElement.classList.add('tadc'); } catch (e) {}
     })();
   </script>
 </head>
 <body>
   <div id="toast"></div>
   <button id="motionOffBtn" data-act="motion-off">🎢 Turn off more motion</button>
+  <img id="tadcLeft" class="tadc-corner tadc-left" src="scene.avif" alt="" aria-hidden="true" onerror="this.remove()" />
+  <img id="tadcRight" class="tadc-corner tadc-right" src="pomni.avif" alt="" aria-hidden="true" onerror="this.remove()" />
   <div class="alpha-banner">Early alpha — still building, so things may wobble. Thanks for being here.</div>
 
   <!-- Mobile top bar -->
@@ -305,6 +319,13 @@
             <div class="setting-sub">Mellow keeps things calm by default. Turn this on for extra playful animation — you can switch it off any time from the button up top.</div>
           </div>
           <span class="switch"><input type="checkbox" id="moreMotionToggle" /><span class="switch-track"></span></span>
+        </label>
+        <label class="setting-row">
+          <div class="setting-text">
+            <div class="setting-title">🎪 TADC mode</div>
+            <div class="setting-sub">A little circus chaos — friends peek in from the bottom corners.</div>
+          </div>
+          <span class="switch"><input type="checkbox" id="tadcToggle" /><span class="switch-track"></span></span>
         </label>
       </div>
       <div class="modal-footer">
