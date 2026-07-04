@@ -51,6 +51,7 @@
     homeView: $('homeView'), profileView: $('profileView'), profileBody: $('profileBody'),
     backBtn: $('backBtn'),
     tabForYou: $('tabForYou'), tabLatest: $('tabLatest'), announcements: $('announcements'),
+    tabTransition: $('tabTransition'),
     feedToggle: $('feedToggle'), areaStrip: $('areaStrip'),
     searchView: $('searchView'), searchInput: $('searchInput'), searchClear: $('searchClear'),
     searchResults: $('searchResults'), searchBar: $('searchBar'),
@@ -519,6 +520,21 @@
     });
   }
 
+  // Play the little "For You / Latest" toggle clip over the tabs, then fade to
+  // the static tabs. Forward for ->Latest, the baked-reverse clip for ->For You.
+  // Skipped for reduced-motion (video autoplay).
+  const _vidExt = document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"') ? 'mp4' : 'webm';
+  function playTabTransition(toLatest) {
+    const vid = els.tabTransition;
+    if (!vid || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    vid.src = `${toLatest ? 'feed-transition' : 'feed-transition-rev'}.${_vidExt}`;
+    vid.classList.add('show');
+    const hide = () => { vid.classList.remove('show'); vid.removeEventListener('ended', hide); clearTimeout(vid._t); };
+    vid.addEventListener('ended', hide);
+    vid._t = setTimeout(hide, 1400); // fallback so it always fades back to static
+    try { vid.currentTime = 0; const p = vid.play(); if (p) p.catch(() => {}); } catch {}
+  }
+
   // Directional feed swap: old feed slides out one way, new feed slides in from
   // the other. For You -> Latest exits left / enters right; the reverse mirrors it.
   let _switchingFeed = false;
@@ -529,6 +545,7 @@
     feedMode = newMode;
     els.tabForYou.classList.toggle('active', newMode === 'foryou');
     els.tabLatest.classList.toggle('active', newMode === 'latest');
+    playTabTransition(toLatest);
 
     const el = els.posts;
     // Small directional nudge — the crossfade carries the change, the slide is
