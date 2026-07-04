@@ -326,6 +326,33 @@ img.av{background:var(--surface-4)}
 /* Feed tab swap: quick directional crossfade between For You / Latest */
 #posts.feed-anim{transition:transform .17s var(--ease-soft),opacity .17s var(--ease-soft)}
 
+/* Settings toggle switch */
+.setting-row{display:flex;align-items:center;gap:16px;justify-content:space-between;cursor:pointer}
+.setting-text{flex:1}
+.setting-title{font-weight:700;font-size:15px;color:var(--text)}
+.setting-sub{font-size:13px;color:var(--text-muted);line-height:1.45;margin-top:3px}
+.switch{position:relative;flex:0 0 auto;width:46px;height:27px}
+.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.switch-track{position:absolute;inset:0;background:var(--border-strong);border-radius:999px;transition:background var(--t)}
+.switch-track::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(27,29,40,.25);transition:transform var(--t) var(--ease-squish)}
+.switch input:checked + .switch-track{background:var(--primary)}
+.switch input:checked + .switch-track::after{transform:translateX(19px)}
+
+/* "Turn off more motion" escape button — only visible in more-motion mode */
+#motionOffBtn{display:none;position:fixed;top:12px;right:12px;z-index:9998;background:var(--surface);color:var(--text);border:1px solid var(--border-strong);border-radius:var(--radius-pill);font-family:var(--font-body);font-weight:700;font-size:13px;padding:9px 15px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(27,29,40,.3)}
+html.motion-more #motionOffBtn{display:inline-flex;align-items:center;gap:6px}
+
+/* Extra playful animation, only when "more motion" is opted in */
+html.motion-more .logo-mark{animation:mm-bob 2.4s var(--ease-soft) infinite}
+html.motion-more .new-post-btn:hover,html.motion-more .post-prompt-btn:hover,html.motion-more .composer-submit:hover{transform:translateY(-2px) rotate(-1.5deg)}
+html.motion-more .card:hover,html.motion-more .rail-card:hover{transform:translateY(-3px)}
+html.motion-more .pact.liked svg{animation:mm-pop .4s var(--ease-squish)}
+html.motion-more .nav-item.active{animation:mm-nudge 2.2s ease-in-out infinite}
+html.motion-more .fab-tab{animation:mm-bob 2s var(--ease-soft) infinite}
+@keyframes mm-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes mm-pop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+@keyframes mm-nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}
+
 /* Mellow loader — a little campfire toasting a marshmallow */
 .mellow-loader{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px 0}
 .ml-stage{position:relative;width:64px;height:60px}
