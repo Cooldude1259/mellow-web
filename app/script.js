@@ -11,6 +11,19 @@
   const NATIVE_AUTH = !!(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.nativeAuth);
   const $ = (id) => document.getElementById(id);
 
+  // ---- Debug trace (?debug) ----
+  // Zero-cost unless the page is opened with ?debug. Each trace() call reports
+  // its own source line (via the stack) so debug.js can light it up on screen.
+  const DEBUG = new URLSearchParams(location.search).has('debug');
+  function trace(label) {
+    if (!DEBUG) return;
+    try {
+      const nums = [];
+      (new Error().stack || '').split('\n').forEach((s) => { const m = s.match(/script\.js:(\d+):\d+/); if (m) nums.push(+m[1]); });
+      window.__dbgHighlight && window.__dbgHighlight(nums[1] || nums[0], label);
+    } catch (e) {}
+  }
+
   // Area color map (design tokens)
   const AREA_COLORS = {
     'school news': '#2f6bff', 'news': '#2f6bff',
@@ -91,6 +104,7 @@
   }
 
   function showScreen(name) {
+    trace('showScreen → ' + name);
     activateScreen(name);
     if (name === 'home') { loadFeed(); }
     if (name === 'search') { setTimeout(() => els.searchInput?.focus(), 50); }
@@ -272,6 +286,7 @@
   }
 
   async function applyAuthState(session) {
+    trace('applyAuthState — auth changed');
     authUser = session?.user || null;
     authUserId = authUser?.id || null;
     if (authUser) {
@@ -425,11 +440,13 @@
   const feedCache = { foryou: null, latest: null };
 
   async function fetchForYou() {
+    trace('fetch For You → RPC get_feed');
     const { data, error } = await supabase.rpc('get_feed', { lim: 100 });
     if (error) { console.error(error); return null; }
     return (data || []).map(fromRpc);
   }
   async function fetchLatest() {
+    trace('fetch Latest → select Posts');
     const { data, error } = await supabase.from('Posts').select(REST_SELECT).neq('status', 'removed').order('created_at', { ascending: false }).limit(100);
     if (error) { console.error(error); return null; }
     const ids = data.map((p) => p['post-id']);
@@ -457,6 +474,7 @@
   }
 
   function loadFeed() {
+    trace('loadFeed()');
     loadAnnouncements();
     if (selectedAreaId !== null) return loadAreaFeed();
     return feedMode === 'foryou' ? loadForYou() : loadLatest();
@@ -540,6 +558,7 @@
   let _switchingFeed = false;
   async function switchFeed(newMode) {
     if (newMode === feedMode || _switchingFeed) return;
+    trace('switchFeed → ' + newMode);
     _switchingFeed = true;
     const toLatest = newMode === 'latest';
     feedMode = newMode;
@@ -801,6 +820,7 @@
     els.postBtn.disabled = true; els.status.textContent = 'Posting…';
     try {
       const areaId = selectedPickId || null;
+      trace('create post → insert Posts');
       const { data, error } = await supabase.from('Posts')
         .insert({ title: title || null, content, 'creator-id': currentProfile['creator-id'], area_id: areaId })
         .select('"post-id"').single();
@@ -818,6 +838,7 @@
 
   // ---- Likes / Dislikes ----
   async function toggleLike(postId, card) {
+    trace('toggleLike(' + postId + ')');
     if (!authUserId) return alert('Sign in to react.');
     const likeBtn = card.querySelector('[data-act="like"]');
     const disBtn = card.querySelector('[data-act="dislike"]');
@@ -907,6 +928,7 @@
   // the element is cloned into vertical strips that fall out the bottom.
   // Resolves true if it handled removal, false if the caller should remove normally.
   function shredAway(el) {
+    trace('shredAway() — more-motion delete');
     return new Promise((resolve) => {
       const on = document.documentElement.classList.contains('motion-more')
         && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -961,6 +983,7 @@
   }
 
   async function deleteComment(commentId, postId, box) {
+    trace('deleteComment → delete Comments');
     const commentEl = box.querySelector(`.comment[data-comment-id="${commentId}"]`);
     try {
       const { error } = await supabase.from('Comments').delete().eq('comment-id', commentId);
@@ -979,6 +1002,7 @@
   // ---- Delete post ----
   async function deletePost(postId) {
     if (!confirm('Delete this post? This also removes its likes and comments.')) return;
+    trace('deletePost → delete Posts');
     const card = document.querySelector(`.card[data-post-id="${postId}"]`);
     try {
       const { error } = await supabase.from('Posts').delete().eq('post-id', postId);
@@ -1012,6 +1036,7 @@
   }
 
   async function openProfile(userId) {
+    trace('openProfile → select Users + counts');
     activateScreen('profile'); // switch view without re-triggering openSelfProfile
     els.profileBody.innerHTML = loaderHtml('Loading profile…');
     const { data: prof, error } = await supabase.from('Users').select('"creator-id", Name, avatar_url, bio, user_id').eq('user_id', userId).single();
