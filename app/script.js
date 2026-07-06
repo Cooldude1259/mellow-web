@@ -15,6 +15,10 @@
   // Zero-cost unless the page is opened with ?debug. Each trace() call reports
   // its own source line (via the stack) so debug.js can light it up on screen.
   const DEBUG = new URLSearchParams(location.search).has('debug');
+  const EXPERIMENTS_MODE = new URLSearchParams(location.search).has('experiments');
+  const BUTTON_LAYOUT_KEY = 'mellow_button_layout';
+  const BUTTON_PLACEMENTS = ['top-right', 'top-left', 'bottom-right', 'bottom-left'];
+  const DEFAULT_BUTTON_LAYOUT = { motionOffBtn: 'top-right', shredGuiBtn: 'bottom-left' };
   function trace(label) {
     if (!DEBUG) return;
     try {
@@ -22,6 +26,24 @@
       (new Error().stack || '').split('\n').forEach((s) => { const m = s.match(/script\.js:(\d+):\d+/); if (m) nums.push(+m[1]); });
       window.__dbgHighlight && window.__dbgHighlight(nums[1] || nums[0], label);
     } catch (e) {}
+  }
+
+  function normalizePlacement(value, fallback) {
+    return BUTTON_PLACEMENTS.includes(value) ? value : fallback;
+  }
+  function readButtonLayout() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(BUTTON_LAYOUT_KEY) || '{}');
+      return {
+        motionOffBtn: normalizePlacement(saved.motionOffBtn, DEFAULT_BUTTON_LAYOUT.motionOffBtn),
+        shredGuiBtn: normalizePlacement(saved.shredGuiBtn, DEFAULT_BUTTON_LAYOUT.shredGuiBtn),
+      };
+    } catch (e) {
+      return { ...DEFAULT_BUTTON_LAYOUT };
+    }
+  }
+  function saveButtonLayout(nextLayout) {
+    try { localStorage.setItem(BUTTON_LAYOUT_KEY, JSON.stringify(nextLayout)); } catch (e) {}
   }
 
   // Area color map (design tokens)
@@ -73,10 +95,26 @@
     composerAvatar: $('composerAvatar'), promptAvatar: $('promptAvatar'),
     sidebarMe: $('sidebarMe'), sidebarAvatar: $('sidebarAvatar'), sidebarName: $('sidebarName'),
     mobileAvatar: $('mobileAvatar'),
+    motionOffBtn: $('motionOffBtn'), shredGuiBtn: $('shredGuiBtn'),
     myReportsBtn: $('myReportsBtn'),
     areasView: $('areasView'), areasGrid: $('areasGrid'),
     railAnnouncement: $('railAnnouncement'), railAreas: $('railAreas'),
   };
+
+  const buttonLayout = readButtonLayout();
+  document.documentElement.classList.toggle('experiments', EXPERIMENTS_MODE);
+
+  function applyButtonLayout(nextLayout) {
+    buttonLayout.motionOffBtn = normalizePlacement(nextLayout?.motionOffBtn, buttonLayout.motionOffBtn);
+    buttonLayout.shredGuiBtn = normalizePlacement(nextLayout?.shredGuiBtn, buttonLayout.shredGuiBtn);
+    if (els.motionOffBtn) els.motionOffBtn.dataset.dock = buttonLayout.motionOffBtn;
+    if (els.shredGuiBtn) {
+      els.shredGuiBtn.dataset.dock = buttonLayout.shredGuiBtn;
+      els.shredGuiBtn.classList.toggle('hidden', !EXPERIMENTS_MODE);
+    }
+    saveButtonLayout(buttonLayout);
+  }
+  applyButtonLayout(buttonLayout);
 
   // ---- Screen navigation ----
   const SCREENS = ['home', 'search', 'areas', 'profile', 'myReports'];
@@ -200,7 +238,7 @@
 
   // ---- Feedback (Tally) ----
   // Paste your Tally form id here (the part after tally.so/r/, e.g. 'wgABCD').
-  const TALLY_FORM_ID = 'YOUR_TALLY_FORM_ID';
+  const TALLY_FORM_ID = 'obpYWe';
   function openFeedback() {
     // Attach handle (never the real name) + signed-in state so feedback can be triaged.
     const hidden = {
@@ -223,11 +261,21 @@
     if (mm) mm.checked = !!(window.isMoreMotion && window.isMoreMotion());
     const tt = $('tadcToggle');
     if (tt) tt.checked = !!(window.isTadc && window.isTadc());
+    const exp = $('experimentSettings');
+    exp?.classList.toggle('hidden', !EXPERIMENTS_MODE);
+    if (EXPERIMENTS_MODE) {
+      const motionDock = $('motionBtnDock');
+      const shredDock = $('shredBtnDock');
+      if (motionDock) motionDock.value = buttonLayout.motionOffBtn;
+      if (shredDock) shredDock.value = buttonLayout.shredGuiBtn;
+    }
     $('settingsModal')?.classList.add('open');
   }
   function closeSettings() { $('settingsModal')?.classList.remove('open'); }
   $('moreMotionToggle')?.addEventListener('change', (e) => { window.setMoreMotion?.(e.target.checked); });
   $('tadcToggle')?.addEventListener('change', (e) => { window.setTadc?.(e.target.checked); });
+  $('motionBtnDock')?.addEventListener('change', (e) => applyButtonLayout({ ...buttonLayout, motionOffBtn: e.target.value }));
+  $('shredBtnDock')?.addEventListener('change', (e) => applyButtonLayout({ ...buttonLayout, shredGuiBtn: e.target.value }));
   $('settingsModal')?.addEventListener('click', (e) => { if (e.target === $('settingsModal')) closeSettings(); });
 
   // ---- Utils ----
@@ -982,6 +1030,36 @@
     });
   }
 
+  function shredGuiPreview() {
+    if (!EXPERIMENTS_MODE) return;
+    const shell = document.querySelector('.shell');
+    if (!shell) return;
+    const rect = shell.getBoundingClientRect();
+    const stage = document.createElement('div');
+    stage.className = 'gui-shred-stage';
+    stage.style.cssText = `left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px`;
+    const strips = Math.max(9, Math.round(rect.width / 180));
+    for (let i = 0; i < strips; i++) {
+      const strip = document.createElement('div');
+      strip.className = 'gui-shred-strip';
+      strip.style.left = (i * 100 / strips).toFixed(3) + '%';
+      strip.style.width = (100 / strips).toFixed(3) + '%';
+      strip.style.animationDelay = (Math.random() * 0.1).toFixed(2) + 's';
+      strip.style.setProperty('--fall', (70 + Math.random() * 80).toFixed(0) + 'px');
+      strip.style.setProperty('--rot', ((Math.random() * 2 - 1) * 7).toFixed(1) + 'deg');
+      stage.appendChild(strip);
+    }
+    document.body.appendChild(stage);
+    shell.style.transition = 'transform .14s var(--ease-squish), opacity .14s ease';
+    shell.style.transform = 'translateY(-8px) scale(.995)';
+    shell.style.opacity = '.55';
+    setTimeout(() => {
+      shell.style.transform = '';
+      shell.style.opacity = '';
+      stage.remove();
+    }, 820);
+  }
+
   async function deleteComment(commentId, postId, box) {
     trace('deleteComment → delete Comments');
     const commentEl = box.querySelector(`.comment[data-comment-id="${commentId}"]`);
@@ -1161,6 +1239,7 @@
       if (act === 'settings') { openSettings(); return; }
       if (act === 'close-settings') { closeSettings(); return; }
       if (act === 'motion-off') { window.setMoreMotion?.(false); return; }
+      if (act === 'shred-gui') { shredGuiPreview(); return; }
       return;
     }
     // Close open menus when clicking outside

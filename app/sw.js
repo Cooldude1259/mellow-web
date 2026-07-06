@@ -1,7 +1,7 @@
 // Mellow service worker — required for Android install (WebAPK) + offline shell.
 // Network-first for same-origin GETs, falling back to cache when offline.
 const CACHE = 'mellow-v1';
-const CORE = ['./', 'index.html', 'script.js', 'styles.css', 'logo.png', 'manifest.webmanifest'];
+const CORE = ['./', 'index.html', 'experiments/index.html', 'script.js', 'styles.css', 'assets/logo.png', 'manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
