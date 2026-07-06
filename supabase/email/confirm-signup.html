@@ -1,0 +1,49 @@
+<!-- Mellow — "Confirm your signup" email template.
+     Paste into Supabase → Authentication → Emails → Confirm signup.
+     Keep {{ .ConfirmationURL }} exactly as-is — Supabase fills it in.
+     Table-based layout + inline styles for email-client compatibility. -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;margin:0;padding:24px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:440px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(20,24,40,0.08)">
+        <tr>
+          <td style="background:linear-gradient(135deg,#ff7a45,#ff5a5f);padding:32px 32px 28px;text-align:center">
+            <div style="font-size:30px;font-weight:800;color:#ffffff;letter-spacing:-0.5px">Mellow 🔥</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:32px 32px 12px">
+            <h2 style="margin:0 0 12px;font-size:21px;color:#161a22">Confirm your signup</h2>
+            <p style="margin:0 0 24px;font-size:15px;line-height:1.55;color:#5b6472">
+              Welcome! Tap the button below to confirm your email and finish setting up your account.
+            </p>
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 8px">
+              <tr>
+                <td align="center" style="border-radius:12px;background:#ff5a5f">
+                  <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 34px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:12px">
+                    Confirm your email
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 32px 28px">
+            <p style="margin:20px 0 6px;font-size:13px;color:#8a92a1">If the button doesn't work, copy and paste this link:</p>
+            <p style="margin:0;font-size:13px;line-height:1.4;word-break:break-all">
+              <a href="{{ .ConfirmationURL }}" style="color:#ff5a5f;text-decoration:none">{{ .ConfirmationURL }}</a>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 32px 28px;border-top:1px solid #eef0f3">
+            <p style="margin:0;font-size:12px;line-height:1.5;color:#a0a7b4">
+              If you didn't create a Mellow account, you can safely ignore this email — no account will be created without confirmation.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
