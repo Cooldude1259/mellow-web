@@ -1033,31 +1033,36 @@
   function shredGuiPreview() {
     if (!EXPERIMENTS_MODE) return;
     const shell = document.querySelector('.shell');
-    if (!shell) return;
+    if (!shell || document.querySelector('.gui-shred-stage')) return;
     const rect = shell.getBoundingClientRect();
     const stage = document.createElement('div');
     stage.className = 'gui-shred-stage';
     stage.style.cssText = `left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px`;
-    const strips = Math.max(9, Math.round(rect.width / 180));
-    for (let i = 0; i < strips; i++) {
+    // Clone the whole app into vertical strips (clip-path bands) so the real UI
+    // visibly slices apart and falls — not just faint overlays.
+    const N = Math.max(10, Math.round(rect.width / 90));
+    for (let i = 0; i < N; i++) {
       const strip = document.createElement('div');
       strip.className = 'gui-shred-strip';
-      strip.style.left = (i * 100 / strips).toFixed(3) + '%';
-      strip.style.width = (100 / strips).toFixed(3) + '%';
-      strip.style.animationDelay = (Math.random() * 0.1).toFixed(2) + 's';
-      strip.style.setProperty('--fall', (70 + Math.random() * 80).toFixed(0) + 'px');
-      strip.style.setProperty('--rot', ((Math.random() * 2 - 1) * 7).toFixed(1) + 'deg');
+      strip.style.width = rect.width + 'px';
+      strip.style.height = rect.height + 'px';
+      strip.style.clipPath = `inset(0 ${(100 - (i + 1) * 100 / N).toFixed(3)}% 0 ${(i * 100 / N).toFixed(3)}%)`;
+      strip.style.animationDelay = (Math.random() * 0.12).toFixed(2) + 's';
+      strip.style.setProperty('--fall', (rect.height * 0.55 + Math.random() * rect.height * 0.5).toFixed(0) + 'px');
+      strip.style.setProperty('--rot', ((Math.random() * 2 - 1) * 6).toFixed(1) + 'deg');
+      const clone = shell.cloneNode(true);
+      clone.style.margin = '0';
+      clone.style.width = rect.width + 'px';
+      clone.style.transform = 'none';
+      strip.appendChild(clone);
       stage.appendChild(strip);
     }
+    const mach = document.createElement('div');
+    mach.className = 'gui-shred-machine';
+    stage.appendChild(mach);
     document.body.appendChild(stage);
-    shell.style.transition = 'transform .14s var(--ease-squish), opacity .14s ease';
-    shell.style.transform = 'translateY(-8px) scale(.995)';
-    shell.style.opacity = '.55';
-    setTimeout(() => {
-      shell.style.transform = '';
-      shell.style.opacity = '';
-      stage.remove();
-    }, 820);
+    shell.style.visibility = 'hidden'; // strips carry the visual
+    setTimeout(() => { stage.remove(); shell.style.visibility = ''; }, 1050);
   }
 
   async function deleteComment(commentId, postId, box) {
