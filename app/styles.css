@@ -396,9 +396,12 @@ html.motion-more .fab-tab{animation:mm-bob 2s var(--ease-soft) infinite}
 .shred-machine::before{content:"";position:absolute;left:9px;right:9px;top:9px;height:4px;background:#0a0c10;border-radius:3px}
 .shred-machine::after{content:"";position:absolute;left:9px;right:9px;top:15px;height:8px;background:repeating-linear-gradient(90deg,#cfd3db 0 4px,transparent 4px 9px);clip-path:polygon(0 0,4% 100%,8% 0,12% 100%,16% 0,20% 100%,24% 0,28% 100%,32% 0,36% 100%,40% 0,44% 100%,48% 0,52% 100%,56% 0,60% 100%,64% 0,68% 100%,72% 0,76% 100%,80% 0,84% 100%,88% 0,92% 100%,96% 0,100% 100%,100% 0,0 0)}
 @keyframes shred-machine{to{opacity:1}}
-.gui-shred-stage{position:fixed;z-index:1490;pointer-events:none;overflow:hidden;border-radius:var(--radius-card);box-shadow:0 16px 34px -20px rgba(27,29,40,.55),0 0 0 1px rgba(255,255,255,.22) inset;background:rgba(255,255,255,.28);backdrop-filter:blur(2px)}
-.gui-shred-strip{position:absolute;top:0;height:100%;background:linear-gradient(to bottom,rgba(255,255,255,.32),rgba(255,255,255,.05) 55%,rgba(255,255,255,.2));border-right:1px solid rgba(255,255,255,.45);animation:gui-shred-fall .82s cubic-bezier(.4,0,.7,1) forwards;will-change:transform,opacity}
-@keyframes gui-shred-fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(var(--fall,110px)) rotate(var(--rot,0));opacity:0}}
+.gui-shred-stage{position:fixed;z-index:1490;pointer-events:none;overflow:visible}
+.gui-shred-strip{position:absolute;left:0;top:0;overflow:hidden;animation:gui-shred-fall .95s cubic-bezier(.4,0,.7,1) forwards;will-change:transform,opacity}
+@keyframes gui-shred-fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(var(--fall,320px)) rotate(var(--rot,0));opacity:0}}
+.gui-shred-machine{position:absolute;left:-6px;right:-6px;top:-16px;height:30px;background:linear-gradient(#3b414d,#20242c);border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.45);opacity:0;animation:shred-machine .18s ease forwards}
+.gui-shred-machine::before{content:"";position:absolute;left:10px;right:10px;top:10px;height:4px;background:#0a0c10;border-radius:3px}
+.gui-shred-machine::after{content:"";position:absolute;left:10px;right:10px;top:16px;height:9px;background:repeating-linear-gradient(90deg,#cfd3db 0 4px,transparent 4px 9px)}
 
 /* Mellow loader — a little campfire toasting a marshmallow */
 .mellow-loader{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px 0}
