@@ -1,4 +1,5 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  import { ensureOnboarded } from './onboarding.js';
 
   const SUPABASE_URL = 'https://bmfbnydcanksjwquljzb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_qa7veCIyFBL1_BYNFOCsXQ_cfHGKyh0';
@@ -230,7 +231,7 @@
   }
   $('backToFeedBtn')?.addEventListener('click', () => showScreen('home'));
 
-  let authUser = null, authUserId = null, currentProfile = null;
+  let authUser = null, authUserId = null, currentProfile = null, currentTier = null;
   let feedMode = 'foryou';
   let selectedAreaId = null;
   let areas = [];
@@ -346,6 +347,8 @@
           return;
         }
       } catch (e) { console.error(e); currentProfile = null; }
+      // Collect DOB + country + consent once (new users). Server derives/stores the tier.
+      try { currentTier = await ensureOnboarded(supabase, authUser); } catch (e) { console.error('onboarding', e); }
       // Never fall back to the real name or email — display the handle only.
       const name = currentProfile?.Name || 'Member';
       const avatarUrl = authUser.user_metadata?.avatar_url;
