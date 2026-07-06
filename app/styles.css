@@ -355,6 +355,9 @@ html.tadc .tadc-corner{display:block}
 .setting-text{flex:1}
 .setting-title{font-weight:700;font-size:15px;color:var(--text)}
 .setting-sub{font-size:13px;color:var(--text-muted);line-height:1.45;margin-top:3px}
+.setting-select{appearance:none;background:var(--surface);border:1px solid var(--border-strong);border-radius:10px;color:var(--text);font-family:var(--font-body);font-size:14px;font-weight:600;min-width:138px;padding:10px 12px;cursor:pointer;box-shadow:0 1px 2px rgba(27,29,40,.04)}
+.setting-select:focus{outline:none;border-color:var(--primary)}
+.settings-experiments{display:flex;flex-direction:column;gap:14px;padding-top:14px;margin-top:10px;border-top:1px solid var(--border)}
 .switch{position:relative;flex:0 0 auto;width:46px;height:27px}
 .switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
 .switch-track{position:absolute;inset:0;background:var(--border-strong);border-radius:999px;transition:background var(--t)}
@@ -363,8 +366,16 @@ html.tadc .tadc-corner{display:block}
 .switch input:checked + .switch-track::after{transform:translateX(19px)}
 
 /* "Turn off more motion" escape button — only visible in more-motion mode */
-#motionOffBtn{display:none;position:fixed;top:12px;right:12px;z-index:9998;background:var(--surface);color:var(--text);border:1px solid var(--border-strong);border-radius:var(--radius-pill);font-family:var(--font-body);font-weight:700;font-size:13px;padding:9px 15px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(27,29,40,.3)}
+#motionOffBtn,#shredGuiBtn{position:fixed;z-index:9998;border-radius:var(--radius-pill);font-family:var(--font-body);font-weight:700;font-size:13px;padding:9px 15px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(27,29,40,.3);transition:transform var(--t) var(--ease-squish),background var(--t),color var(--t),border-color var(--t),box-shadow var(--t)}
+#motionOffBtn{display:none;background:var(--surface);color:var(--text);border:1px solid var(--border-strong)}
 html.motion-more #motionOffBtn{display:inline-flex;align-items:center;gap:6px}
+#shredGuiBtn{display:none;background:rgba(255,77,109,.12);color:var(--danger);border:1px solid rgba(255,77,109,.28)}
+html.experiments #shredGuiBtn{display:inline-flex;align-items:center;gap:6px}
+#motionOffBtn[data-dock="top-right"],#shredGuiBtn[data-dock="top-right"]{top:12px;right:12px;bottom:auto;left:auto}
+#motionOffBtn[data-dock="top-left"],#shredGuiBtn[data-dock="top-left"]{top:12px;left:12px;bottom:auto;right:auto}
+#motionOffBtn[data-dock="bottom-right"],#shredGuiBtn[data-dock="bottom-right"]{bottom:12px;right:12px;top:auto;left:auto}
+#motionOffBtn[data-dock="bottom-left"],#shredGuiBtn[data-dock="bottom-left"]{bottom:12px;left:12px;top:auto;right:auto}
+#motionOffBtn:active,#shredGuiBtn:active{transform:scale(.94)}
 
 /* Extra playful animation, only when "more motion" is opted in */
 html.motion-more .logo-mark{animation:mm-bob 2.4s var(--ease-soft) infinite}
@@ -385,6 +396,9 @@ html.motion-more .fab-tab{animation:mm-bob 2s var(--ease-soft) infinite}
 .shred-machine::before{content:"";position:absolute;left:9px;right:9px;top:9px;height:4px;background:#0a0c10;border-radius:3px}
 .shred-machine::after{content:"";position:absolute;left:9px;right:9px;top:15px;height:8px;background:repeating-linear-gradient(90deg,#cfd3db 0 4px,transparent 4px 9px);clip-path:polygon(0 0,4% 100%,8% 0,12% 100%,16% 0,20% 100%,24% 0,28% 100%,32% 0,36% 100%,40% 0,44% 100%,48% 0,52% 100%,56% 0,60% 100%,64% 0,68% 100%,72% 0,76% 100%,80% 0,84% 100%,88% 0,92% 100%,96% 0,100% 100%,100% 0,0 0)}
 @keyframes shred-machine{to{opacity:1}}
+.gui-shred-stage{position:fixed;z-index:1490;pointer-events:none;overflow:hidden;border-radius:var(--radius-card);box-shadow:0 16px 34px -20px rgba(27,29,40,.55),0 0 0 1px rgba(255,255,255,.22) inset;background:rgba(255,255,255,.28);backdrop-filter:blur(2px)}
+.gui-shred-strip{position:absolute;top:0;height:100%;background:linear-gradient(to bottom,rgba(255,255,255,.32),rgba(255,255,255,.05) 55%,rgba(255,255,255,.2));border-right:1px solid rgba(255,255,255,.45);animation:gui-shred-fall .82s cubic-bezier(.4,0,.7,1) forwards;will-change:transform,opacity}
+@keyframes gui-shred-fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(var(--fall,110px)) rotate(var(--rot,0));opacity:0}}
 
 /* Mellow loader — a little campfire toasting a marshmallow */
 .mellow-loader{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px 0}

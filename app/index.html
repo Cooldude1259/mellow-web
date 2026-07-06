@@ -3,9 +3,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mellow</title>
-  <link rel="icon" href="logo.png" />
+  <link rel="icon" href="assets/logo.png" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
   <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
   <meta name="description" content="Social media that's actually on your side — a friendlier, safer place to be online." />
   <meta name="theme-color" content="#0ea98f" />
@@ -15,12 +15,12 @@
   <meta property="og:title" content="Mellow" />
   <meta property="og:description" content="Social media that's actually on your side — a friendlier, safer place to be online." />
   <meta property="og:url" content="https://cooldude1259.github.io/my-social-media/app/index.html" />
-  <meta property="og:image" content="https://cooldude1259.github.io/my-social-media/app/logo.png" />
+  <meta property="og:image" content="https://cooldude1259.github.io/my-social-media/app/assets/logo.png" />
   <meta property="og:image:alt" content="Mellow" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Mellow" />
   <meta name="twitter:description" content="Social media that's actually on your side — a friendlier, safer place to be online." />
-  <meta name="twitter:image" content="https://cooldude1259.github.io/my-social-media/app/logo.png" />
+  <meta name="twitter:image" content="https://cooldude1259.github.io/my-social-media/app/assets/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesque:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -99,15 +99,16 @@
 <body>
   <div id="toast"></div>
   <button id="motionOffBtn" data-act="motion-off">🎢 Turn off more motion</button>
+  <button id="shredGuiBtn" data-act="shred-gui">🪓 Shred GUI</button>
   <div id="tadcOverlay" aria-hidden="true"></div>
-  <img id="tadcLeft" class="tadc-corner tadc-left" src="scene.avif" alt="" aria-hidden="true" onerror="this.remove()" />
-  <img id="tadcRight" class="tadc-corner tadc-right" src="pomni.avif" alt="" aria-hidden="true" onerror="this.remove()" />
+  <img id="tadcLeft" class="tadc-corner tadc-left" src="assets/scene.avif" alt="" aria-hidden="true" onerror="this.remove()" />
+  <img id="tadcRight" class="tadc-corner tadc-right" src="assets/pomni.avif" alt="" aria-hidden="true" onerror="this.remove()" />
   <div class="alpha-banner">Early alpha — still building, so things may wobble. Thanks for being here.</div>
 
   <!-- Mobile top bar -->
   <div class="mobile-top-bar">
     <div class="brand" style="padding:0">
-      <div class="logo-mark" style="width:32px;height:32px;font-size:17px;border-radius:9px"><img src="logo.png" alt="Mellow" onerror="this.replaceWith(document.createTextNode('M'))"></div>
+      <div class="logo-mark" style="width:32px;height:32px;font-size:17px;border-radius:9px"><img src="assets/logo.png" alt="Mellow" onerror="this.replaceWith(document.createTextNode('M'))"></div>
       <div class="brand-name" style="font-size:18px">Mellow</div>
     </div>
     <span class="av hidden" id="mobileAvatar" style="width:32px;height:32px;font-size:13px;background:var(--primary);cursor:pointer"></span>
@@ -117,7 +118,7 @@
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="logo-mark"><img src="logo.png" alt="Mellow" onerror="this.replaceWith(document.createTextNode('M'))"></div>
+        <div class="logo-mark"><img src="assets/logo.png" alt="Mellow" onerror="this.replaceWith(document.createTextNode('M'))"></div>
         <div class="brand-name">Mellow</div>
       </div>
       <button class="nav-item active" id="navHome" data-screen="home">
@@ -262,7 +263,7 @@
     <aside class="right-rail">
       <div id="railAnnouncement"></div>
       <div class="rail-card">
-        <img class="rail-gif" src="trending.gif" alt="" aria-hidden="true" onerror="this.remove()" />
+        <img class="rail-gif" src="assets/trending.gif" alt="" aria-hidden="true" onerror="this.remove()" />
         <p class="rail-title">Trending areas</p>
         <div id="railAreas"></div>
       </div>
@@ -346,6 +347,33 @@
           </div>
           <span class="switch"><input type="checkbox" id="tadcToggle" /><span class="switch-track"></span></span>
         </label>
+        <div class="settings-experiments hidden" id="experimentSettings">
+          <div class="section-label">Experimental buttons</div>
+          <label class="setting-row">
+            <div class="setting-text">
+              <div class="setting-title">More motion button position</div>
+              <div class="setting-sub">Move the motion escape button to a different corner.</div>
+            </div>
+            <select class="setting-select" id="motionBtnDock">
+              <option value="top-right">Top right</option>
+              <option value="top-left">Top left</option>
+              <option value="bottom-right">Bottom right</option>
+              <option value="bottom-left">Bottom left</option>
+            </select>
+          </label>
+          <label class="setting-row">
+            <div class="setting-text">
+              <div class="setting-title">Shred GUI button position</div>
+              <div class="setting-sub">Choose where the experimental GUI shredder floats.</div>
+            </div>
+            <select class="setting-select" id="shredBtnDock">
+              <option value="bottom-left">Bottom left</option>
+              <option value="top-left">Top left</option>
+              <option value="bottom-right">Bottom right</option>
+              <option value="top-right">Top right</option>
+            </select>
+          </label>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn-primary-modal" data-act="close-settings">Done</button>
