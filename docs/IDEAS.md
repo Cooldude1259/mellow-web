@@ -57,3 +57,29 @@ to contribute, grows the whole thing.
 
 **Guardrails:** keep off the core path (opt-in/hidden); client-side toys only
 (no real user data, not exploitable); time-box so they don't eat the roadmap.
+
+---
+
+## Split deployments: separate apps, not one app twice (someday, not now)
+
+Instead of `app.mellow.pages.dev` being the *same* bundle at another URL, split
+out the parts that are **fundamentally different concerns** into their own
+frontends on their own subdomains — one Supabase backend, one design-token set
+behind all of them.
+
+- **`auth.mellow.pages.dev`** — the sign-in / signup / onboarding surface.
+  Rationale: auth churns constantly (providers, consent copy, tier logic, email
+  flows). Isolating it means we can iterate hard on it without redeploying or
+  destabilising the main feed, and it keeps the security-sensitive surface small.
+- **`kids.mellow.pages.dev`** — a *genuinely different* kids app, not the adult
+  UI with things hidden. Different layout, language, pacing, and stronger rails.
+  Rationale: building the same app "into itself twice" (one codebase trying to
+  be both) gets fragile fast; a purpose-built kids frontend hitting the shared
+  backend (with the tier/`canInteract` rules) is cleaner and safer.
+
+**What makes this cheap for us:** same login, same tokens, same Supabase — each
+is "just another static frontend." **Guardrail:** only worth it once the core +
+tier system are solid; don't fork the frontend before there's one to fork.
+
+_(Note: the plain `app.` subdomain trick is explicitly not pursued — the value
+is in separating different concerns, not relocating the same app.)_
