@@ -1,5 +1,11 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
   import { ensureOnboarded } from './onboarding.js';
+  import { esc, loaderHtml, fmtTime, initial, avatarHtml, cnt, setCount } from './lib/format.js';
+  import { areaColor, areaBlurb, areaEmoji } from './lib/areas.js';
+  import {
+    BUTTON_LAYOUT_KEY, BUTTON_PLACEMENTS, DEFAULT_BUTTON_LAYOUT,
+    normalizePlacement, readButtonLayout, saveButtonLayout,
+  } from './lib/button-layout.js';
 
   const SUPABASE_URL = 'https://bmfbnydcanksjwquljzb.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_qa7veCIyFBL1_BYNFOCsXQ_cfHGKyh0';
@@ -17,9 +23,6 @@
   // its own source line (via the stack) so debug.js can light it up on screen.
   const DEBUG = new URLSearchParams(location.search).has('debug');
   const EXPERIMENTS_MODE = new URLSearchParams(location.search).has('experiments');
-  const BUTTON_LAYOUT_KEY = 'mellow_button_layout';
-  const BUTTON_PLACEMENTS = ['top-right', 'top-left', 'bottom-right', 'bottom-left'];
-  const DEFAULT_BUTTON_LAYOUT = { motionOffBtn: 'top-right', shredGuiBtn: 'bottom-left' };
   function trace(label) {
     if (!DEBUG) return;
     try {
@@ -29,55 +32,11 @@
     } catch (e) {}
   }
 
-  function normalizePlacement(value, fallback) {
-    return BUTTON_PLACEMENTS.includes(value) ? value : fallback;
-  }
-  function readButtonLayout() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(BUTTON_LAYOUT_KEY) || '{}');
-      return {
-        motionOffBtn: normalizePlacement(saved.motionOffBtn, DEFAULT_BUTTON_LAYOUT.motionOffBtn),
-        shredGuiBtn: normalizePlacement(saved.shredGuiBtn, DEFAULT_BUTTON_LAYOUT.shredGuiBtn),
-      };
-    } catch (e) {
-      return { ...DEFAULT_BUTTON_LAYOUT };
-    }
-  }
-  function saveButtonLayout(nextLayout) {
-    try { localStorage.setItem(BUTTON_LAYOUT_KEY, JSON.stringify(nextLayout)); } catch (e) {}
-  }
-
-  // Area color map (design tokens)
-  const AREA_COLORS = {
-    'school news': '#2f6bff', 'news': '#2f6bff',
-    'sports': '#18a957',
-    'clubs': '#7c5cfc',
-    'events': '#ff6b57',
-    'help & homework': '#f5a524', 'help': '#f5a524', 'homework': '#f5a524',
-    'random': '#11b5b0',
-  };
-  const AREA_BLURBS = {
-    'school news': 'Never miss what\'s happening', 'news': 'Never miss what\'s happening',
-    'sports': 'Cheer the teams on',
-    'clubs': 'Find your people',
-    'events': 'See what\'s coming up',
-    'help & homework': 'Ask anything — we\'ve got you', 'help': 'Ask anything — we\'ve got you',
-    'random': 'Hang out and be yourself',
-  };
-  const AREA_EMOJIS = {
-    'school news': '📰', 'news': '📰',
-    'sports': '🏀', 'clubs': '🎭', 'events': '🎉',
-    'help & homework': '📚', 'help': '📚', 'random': '💬',
-  };
   // ---- Theming ----
-  // applyTheme/setActiveStyle/clearTheme/resetActiveStyle are defined inline in
   // Theming is local-only now (no database/agent). Defaults live in styles.css
   // (:root tokens); the inline script in index.html re-applies any locally saved
   // tweak on load, and applyTheme/setActiveStyle stay available in the console.
-
-  function areaColor(name) { return AREA_COLORS[(name || '').toLowerCase()] || '#0ea98f'; }
-  function areaBlurb(name) { return AREA_BLURBS[(name || '').toLowerCase()] || 'Explore this area'; }
-  function areaEmoji(a) { return a.emoji || AREA_EMOJIS[(a.name || '').toLowerCase()] || '📌'; }
+  // Area cosmetics (areaColor/areaBlurb/areaEmoji) live in ./lib/areas.js.
 
   const els = {
     posts: $('posts'), status: $('status'), form: $('composer'),
@@ -280,13 +239,8 @@
   $('settingsModal')?.addEventListener('click', (e) => { if (e.target === $('settingsModal')) closeSettings(); });
 
   // ---- Utils ----
-  const esc = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
-
-  // Cute campfire loading animation (self-contained; used for loading states).
-  function loaderHtml(label = 'Toasting…') {
-    return `<div class="mellow-loader"><div class="ml-stage"><span class="ml-marsh"></span><span class="ml-stick"></span><span class="ml-flame"></span></div><div class="ml-label">${esc(label)}</div></div>`;
-  }
-
+  // Pure helpers (esc, loaderHtml, fmtTime, initial, avatarHtml, cnt, setCount)
+  // live in ./lib/format.js. showToast stays here — it owns a module-level timer.
   let _toastTimer = null;
   function showToast(msg, type = 'error', duration = 5000) {
     const t = $('toast');
@@ -294,14 +248,6 @@
     clearTimeout(_toastTimer);
     _toastTimer = setTimeout(() => { t.className = type; }, duration);
   }
-  const fmtTime = (ts) => { if (!ts) return ''; const d = new Date(ts); return isNaN(d) ? '' : d.toLocaleString(); };
-  const initial = (name) => (name && name.trim() ? name.trim()[0].toUpperCase() : '?');
-  const avatarHtml = (url, name, size = 34, extra = '') =>
-    url
-      ? `<img class="av" src="${esc(url)}" alt="" style="width:${size}px;height:${size}px;${extra}" />`
-      : `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.4)}px;background:#0ea98f;${extra}">${esc(initial(name))}</span>`;
-  const cnt = (rel) => (Array.isArray(rel) && rel[0] ? rel[0].count : 0);
-  const setCount = (el, delta) => { el.textContent = Math.max(0, (parseInt(el.textContent, 10) || 0) + delta); };
 
   // ---- Auth ----
   window.onNativeAuth = async (a, r) => { const { error } = await supabase.auth.setSession({ access_token: a, refresh_token: r }); if (error) console.error(error); };
