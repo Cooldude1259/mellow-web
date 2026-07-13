@@ -201,7 +201,7 @@
   // on Featurebase. First pass links out to the portal; a deeper embedded widget
   // (with SSO so tickets arrive tied to the account) can come later.
   // Set this to your Featurebase org — the part before ".featurebase.app".
-  const FEATUREBASE_ORG = 'your-org';
+  const FEATUREBASE_ORG = 'mellow-app';
   function supportUrl(path = '') {
     // If the org isn't configured yet, fall back to Featurebase's site so the
     // button never dead-ends.
