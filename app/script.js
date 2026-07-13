@@ -196,23 +196,25 @@
   let areas = [];
   let _searchTimer = null;
 
-  // ---- Feedback (Tally) ----
-  // Paste your Tally form id here (the part after tally.so/r/, e.g. 'wgABCD').
-  const TALLY_FORM_ID = 'obpYWe';
-  function openFeedback() {
-    // Attach handle (never the real name) + signed-in state so feedback can be triaged.
-    const hidden = {
-      source: 'mellow-app',
-      handle: currentProfile?.Name || '',
-      signedin: authUserId ? 'yes' : 'no',
-    };
-    if (window.Tally && typeof window.Tally.openPopup === 'function') {
-      window.Tally.openPopup(TALLY_FORM_ID, { layout: 'modal', width: 520, autoClose: 1500, hiddenFields: hidden });
-    } else {
-      // Fallback: open the hosted form in a new tab with the same values as query params.
-      const qs = new URLSearchParams(hidden).toString();
-      window.open(`https://tally.so/r/${TALLY_FORM_ID}?${qs}`, '_blank', 'noopener');
-    }
+  // ---- Support (Featurebase) ----
+  // Our support portal (help centre + feedback + changelog + tickets) is hosted
+  // on Featurebase. First pass links out to the portal; a deeper embedded widget
+  // (with SSO so tickets arrive tied to the account) can come later.
+  // Set this to your Featurebase org — the part before ".featurebase.app".
+  const FEATUREBASE_ORG = 'your-org';
+  function supportUrl(path = '') {
+    // If the org isn't configured yet, fall back to Featurebase's site so the
+    // button never dead-ends.
+    const base = FEATUREBASE_ORG && FEATUREBASE_ORG !== 'your-org'
+      ? `https://${FEATUREBASE_ORG}.featurebase.app`
+      : 'https://www.featurebase.app';
+    const u = new URL(base + path);
+    u.searchParams.set('utm_source', 'mellow-app');
+    if (authUserId) u.searchParams.set('utm_signedin', 'yes');
+    return u.toString();
+  }
+  function openSupport() {
+    window.open(supportUrl(), '_blank', 'noopener');
   }
 
   // ---- Settings ----
@@ -1189,7 +1191,7 @@
       if (act === 'save-bio') return saveBio(actEl.dataset.userId, actEl);
       if (act === 'dismiss-ann') { dismiss(parseInt(actEl.dataset.annId, 10)); loadAnnouncements(); return; }
       if (act === 'my-reports') { openMyReports(); return; }
-      if (act === 'feedback') { openFeedback(); return; }
+      if (act === 'support') { openSupport(); return; }
       if (act === 'settings') { openSettings(); return; }
       if (act === 'close-settings') { closeSettings(); return; }
       if (act === 'motion-off') { window.setMoreMotion?.(false); return; }
