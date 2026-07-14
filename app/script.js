@@ -217,6 +217,12 @@
     window.open(supportUrl(), '_blank', 'noopener');
   }
 
+  // Public status page (hosted on Instatus) — is Mellow up / any incidents.
+  const STATUS_URL = 'https://mellow-status.instatus.com';
+  function openStatus() {
+    window.open(STATUS_URL, '_blank', 'noopener');
+  }
+
   // ---- Settings ----
   function openSettings() {
     const mm = $('moreMotionToggle');
@@ -1192,6 +1198,7 @@
       if (act === 'dismiss-ann') { dismiss(parseInt(actEl.dataset.annId, 10)); loadAnnouncements(); return; }
       if (act === 'my-reports') { openMyReports(); return; }
       if (act === 'support') { openSupport(); return; }
+      if (act === 'status') { openStatus(); return; }
       if (act === 'settings') { openSettings(); return; }
       if (act === 'close-settings') { closeSettings(); return; }
       if (act === 'motion-off') { window.setMoreMotion?.(false); return; }
