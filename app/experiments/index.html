@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mellow Experiments</title>
+    <script>
+      (function () {
+        var url = new URL('../index.html', location.href);
+        var params = new URLSearchParams(location.search);
+        params.set('experiments', '1');
+        url.search = params.toString();
+        url.hash = location.hash;
+        location.replace(url.toString());
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

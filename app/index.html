@@ -1,434 +1,386 @@
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ConnectEd · App</title>
-    <link rel="stylesheet" href="../style.css" />
-    <style>
-      /* Feed-specific styles (not shared across pages) */
-      .feed { max-width: 640px; margin: 0 auto; }
-
-      .auth-bar { display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; margin: 24px 0 4px; }
-      .auth-user { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #c4b5fd; cursor: pointer; }
-      .avatar {
-        width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(139, 92, 246, 0.6);
-        object-fit: cover; background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        display: inline-flex; align-items: center; justify-content: center;
-        font-weight: 700; font-size: 14px; color: white; flex: 0 0 auto;
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mellow</title>
+  <link rel="icon" href="assets/logo.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+  <meta name="description" content="Social media that's actually on your side — a friendlier, safer place to be online." />
+  <meta name="theme-color" content="#0ea98f" />
+  <!-- Link preview (Open Graph / Twitter) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Mellow" />
+  <meta property="og:title" content="Mellow" />
+  <meta property="og:description" content="Social media that's actually on your side — a friendlier, safer place to be online." />
+  <meta property="og:url" content="https://cooldude1259.github.io/my-social-media/app/index.html" />
+  <meta property="og:image" content="https://cooldude1259.github.io/my-social-media/app/assets/logo.png" />
+  <meta property="og:image:alt" content="Mellow" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Mellow" />
+  <meta name="twitter:description" content="Social media that's actually on your side — a friendlier, safer place to be online." />
+  <meta name="twitter:image" content="https://cooldude1259.github.io/my-social-media/app/assets/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesque:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Theme helpers: defined inline (no module/Supabase deps) so they are
+       always callable from the console — applyTheme/setActiveStyle/etc. -->
+  <script>
+    (function () {
+      var THEME_VARS = [
+        'primary','primary-hover','primary-deep','primary-soft','brand-grad',
+        'text','text-body','text-soft','text-muted','text-faint','placeholder',
+        'bg','surface','surface-2','surface-3','surface-4',
+        'border','border-2','border-strong','hairline',
+        'like','danger','font-head','font-body',
+        'radius-card','radius-btn','radius-pill','shadow-card'
+      ];
+      var STYLE_KEY = 'ce_active_style';
+      function applyTheme(row) {
+        if (!row) return;
+        var root = document.documentElement.style;
+        for (var i = 0; i < THEME_VARS.length; i++) {
+          var key = THEME_VARS[i];
+          var v = row[key];
+          if (v == null) v = row[key.replace(/-/g, '_')];
+          if (v != null && v !== '') root.setProperty('--' + key, String(v));
+        }
       }
-      .avatar.sm { width: 26px; height: 26px; font-size: 12px; }
-
-      .btn-secondary { animation: none; padding: 8px 18px; font-size: 14px; background: rgba(255, 255, 255, 0.08); }
-      .btn-secondary:hover { background: rgba(255, 255, 255, 0.16); box-shadow: none; }
-
-      .updates-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 18px;
-        border-radius: 999px;
-        border: 1px solid rgba(139, 92, 246, 0.35);
-        background: rgba(255, 255, 255, 0.06);
-        color: #e9d5ff;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
-        white-space: nowrap;
+      function clearTheme() {
+        var root = document.documentElement.style;
+        for (var i = 0; i < THEME_VARS.length; i++) root.removeProperty('--' + THEME_VARS[i]);
       }
-      .updates-link:hover { background: rgba(255, 255, 255, 0.14); box-shadow: none; }
-
-      .btn-google { animation: none; display: inline-flex; align-items: center; gap: 10px; background: #ffffff; color: #1f2937; }
-      .btn-google:hover { background: #f1f1f1; box-shadow: 0 0 20px rgba(255, 255, 255, 0.25); }
-      .btn-google svg { width: 18px; height: 18px; }
-
-      .feed-toggle { display: flex; justify-content: center; gap: 8px; margin: 18px 0 4px; }
-      .feed-toggle button { animation: none; padding: 8px 20px; font-size: 14px; background: rgba(255,255,255,0.08); }
-      .feed-toggle button.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
-      .feed-toggle button:hover { box-shadow: none; }
-
-      .composer { background: rgba(255,255,255,0.04); border: 1px solid rgba(139,92,246,0.35); border-radius: 18px; padding: 20px; margin: 18px 0 24px; backdrop-filter: blur(8px); }
-      .composer input, .composer textarea {
-        width: 100%; background: rgba(10,10,10,0.6); border: 1px solid rgba(255,255,255,0.15);
-        color: white; border-radius: 12px; padding: 12px 14px; font-family: "Quicksand", sans-serif;
-        font-size: 15px; margin-bottom: 12px; resize: vertical;
+      function setActiveStyle(row) {
+        applyTheme(row);
+        try { localStorage.setItem(STYLE_KEY, JSON.stringify(row)); } catch (e) {}
       }
-      .composer input:focus, .composer textarea:focus { outline: none; border-color: #8b5cf6; box-shadow: 0 0 12px rgba(139,92,246,0.4); }
-      .composer button { animation: none; width: 100%; }
-      .status { text-align: center; min-height: 20px; margin-top: 10px; font-size: 14px; color: #a78bfa; }
-
-      .signin-prompt { text-align: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 24px 20px; margin: 18px 0 24px; animation: none; }
-      .signin-prompt p { animation: none; margin-bottom: 14px; }
-
-      .post { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; animation: none; }
-      .post-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 12px; }
-      .post-author { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: #c4b5fd; cursor: pointer; }
-      .post-author.nolink { cursor: default; }
-      .post-time { font-size: 12px; color: rgba(255,255,255,0.45); white-space: nowrap; }
-      .post-title { font-family: "Orbitron", sans-serif; font-size: 17px; margin-bottom: 6px; animation: none; }
-      .post-content { animation: none; white-space: pre-wrap; word-break: break-word; }
-
-      .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-      .tag { font-size: 11px; padding: 3px 10px; border-radius: 12px; background: rgba(139,92,246,0.18); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
-
-      .post-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-      .act { animation: none; background: rgba(255,255,255,0.06); padding: 6px 12px; font-size: 13px; border-radius: 20px; display: inline-flex; gap: 6px; align-items: center; }
-      .act:hover { background: rgba(255,255,255,0.14); box-shadow: none; }
-      .act.like.on { background: rgba(236,72,153,0.22); color: #f9a8d4; }
-      .act.dislike.on { background: rgba(99,102,241,0.28); color: #c7d2fe; }
-      .act.del { margin-left: auto; background: rgba(239,68,68,0.14); color: #fca5a5; }
-      .act.del:hover { background: rgba(239,68,68,0.28); }
-
-      /* Search */
-      .search-bar { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; }
-      #searchInput {
-        flex: 1; background: rgba(10,10,10,0.6); border: 1px solid rgba(255,255,255,0.15);
-        color: white; border-radius: 20px; padding: 9px 16px;
-        font-family: "Quicksand", sans-serif; font-size: 14px;
+      function resetActiveStyle() {
+        try { localStorage.removeItem(STYLE_KEY); } catch (e) {}
+        clearTheme(); // reverts to the :root defaults in styles.css
       }
-      #searchInput:focus { outline: none; border-color: #8b5cf6; box-shadow: 0 0 10px rgba(139,92,246,0.35); }
-      .search-clear, #searchToggle {
-        animation: none; background: rgba(255,255,255,0.08); padding: 8px 12px;
-        border-radius: 20px; font-size: 16px; line-height: 1;
-      }
-      .search-clear:hover, #searchToggle:hover { background: rgba(255,255,255,0.16); box-shadow: none; }
+      window.applyTheme = applyTheme;
+      window.clearTheme = clearTheme;
+      window.setActiveStyle = setActiveStyle;
+      window.resetActiveStyle = resetActiveStyle;
+      // Apply a locally-saved style right away (no flash, no dependencies).
+      try { var c = localStorage.getItem(STYLE_KEY); if (c) applyTheme(JSON.parse(c)); } catch (e) {}
 
-      /* Area strip */
-      .area-strip { display: flex; gap: 6px; overflow-x: auto; padding: 14px 0 4px; scrollbar-width: none; }
-      .area-strip::-webkit-scrollbar { display: none; }
-      .area-tab {
-        animation: none; white-space: nowrap; padding: 7px 14px; font-size: 13px;
-        background: rgba(255,255,255,0.07); border-radius: 20px; flex-shrink: 0;
+      // Motion mode: calm by default, "more motion" is opt-in. The html class
+      // gates extra animations (CSS) and the escape button (CSS shows it).
+      var MOTION_KEY = 'mellow_more_motion';
+      function setMoreMotion(on) {
+        document.documentElement.classList.toggle('motion-more', !!on);
+        try { localStorage.setItem(MOTION_KEY, on ? '1' : '0'); } catch (e) {}
+        var t = document.getElementById('moreMotionToggle');
+        if (t) t.checked = !!on;
       }
-      .area-tab:hover { background: rgba(255,255,255,0.14); box-shadow: none; }
-      .area-tab.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
-      .suggest-area-btn {
-        animation: none; white-space: nowrap; flex-shrink: 0;
-        background: none; border: 1px dashed rgba(255,255,255,0.2);
-        color: rgba(255,255,255,0.45); padding: 7px 14px; font-size: 12px; border-radius: 20px;
-      }
-      .suggest-area-btn:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.7); box-shadow: none; }
+      window.setMoreMotion = setMoreMotion;
+      window.isMoreMotion = function () { return document.documentElement.classList.contains('motion-more'); };
+      try { if (localStorage.getItem(MOTION_KEY) === '1') document.documentElement.classList.add('motion-more'); } catch (e) {}
 
-      /* Area badge on posts */
-      .area-badge {
-        display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 10px;
-        background: rgba(99,102,241,0.2); color: #c4b5fd;
-        border: 1px solid rgba(99,102,241,0.3); margin-bottom: 6px;
+      // TADC mode: characters peek in from the bottom corners.
+      var TADC_KEY = 'mellow_tadc';
+      function setTadc(on) {
+        document.documentElement.classList.toggle('tadc', !!on);
+        try { localStorage.setItem(TADC_KEY, on ? '1' : '0'); } catch (e) {}
+        var t = document.getElementById('tadcToggle');
+        if (t) t.checked = !!on;
       }
+      window.setTadc = setTadc;
+      window.isTadc = function () { return document.documentElement.classList.contains('tadc'); };
+      try { if (localStorage.getItem(TADC_KEY) === '1') document.documentElement.classList.add('tadc'); } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <div id="toast"></div>
+  <button id="motionOffBtn" data-act="motion-off">🎢 Turn off more motion</button>
+  <button id="shredGuiBtn" data-act="shred-gui">🪓 Shred GUI</button>
+  <div id="tadcOverlay" aria-hidden="true"></div>
+  <img id="tadcLeft" class="tadc-corner tadc-left" src="assets/scene.avif" alt="" aria-hidden="true" onerror="this.remove()" />
+  <img id="tadcRight" class="tadc-corner tadc-right" src="assets/pomni.avif" alt="" aria-hidden="true" onerror="this.remove()" />
+  <div class="alpha-banner">Early alpha — still building, so things may wobble. Thanks for being here.</div>
 
-      /* Composer area select */
-      .composer select {
-        width: 100%; background: rgba(10,10,10,0.6); border: 1px solid rgba(255,255,255,0.15);
-        color: rgba(255,255,255,0.7); border-radius: 12px; padding: 10px 14px;
-        font-family: "Quicksand", sans-serif; font-size: 14px; margin-bottom: 12px;
-        appearance: none; cursor: pointer;
-      }
-      .composer select:focus { outline: none; border-color: #8b5cf6; }
-      .composer select option { background: #1a1a2e; color: white; }
+  <!-- Mobile top bar -->
+  <div class="mobile-top-bar">
+    <div class="brand" style="padding:0">
+      <div class="logo-mark" style="width:32px;height:32px;font-size:17px;border-radius:9px"><img src="assets/logo.png" alt="Mellow" onerror="this.replaceWith(document.createTextNode('M'))"></div>
+      <div class="brand-name" style="font-size:18px">Mellow</div>
+    </div>
+    <span class="av hidden" id="mobileAvatar" style="width:32px;height:32px;font-size:13px;background:var(--primary);cursor:pointer"></span>
+  </div>
 
-      /* Search results */
-      .search-heading { font-size: 12px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; }
-      .user-result {
-        display: flex; align-items: center; gap: 10px; padding: 10px 14px;
-        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 14px; margin-bottom: 8px; cursor: pointer;
-      }
-      .user-result:hover { background: rgba(255,255,255,0.08); }
-      .user-result-name { font-weight: 600; color: #c4b5fd; }
+  <div class="shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-mark"><img src="assets/logo.png" alt="Mellow" onerror="this.replaceWith(document.createTextNode('M'))"></div>
+        <div class="brand-name">Mellow</div>
+      </div>
+      <button class="nav-item active" id="navHome" data-screen="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        Home
+      </button>
+      <button class="nav-item" id="navSearch" data-screen="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+        Search
+      </button>
+      <button class="nav-item" id="navAreas" data-screen="areas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
+        Areas
+      </button>
+      <button class="nav-item" id="navProfile" data-screen="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+        Profile
+      </button>
+      <button class="new-post-btn" id="sidebarNewPost">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        New post
+      </button>
+      <div class="me-row hidden" id="sidebarMe">
+        <span class="av" id="sidebarAvatar" style="width:38px;height:38px;font-size:15px;background:var(--primary)"></span>
+        <div>
+          <div class="me-name" id="sidebarName"></div>
+          <div class="me-sub">You</div>
+        </div>
+      </div>
+      <button class="signout-btn" data-act="support">💬 Help &amp; Support</button>
+      <button class="signout-btn" data-act="status">🟢 Service status</button>
+      <button class="signout-btn hidden" id="signOutBtn">Sign out</button>
+      <!-- kept hidden for JS compat -->
+      <button class="hidden" id="myReportsBtn"></button>
+      <button class="hidden" id="authUser"></button>
+      <span class="hidden" id="userName"></span>
+    </aside>
 
-      #toast {
-        position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-        padding: 14px 20px; text-align: center; font-size: 15px; font-weight: 600;
-        transform: translateY(-100%); transition: transform 0.3s ease;
-        pointer-events: none;
-      }
-      #toast.show { transform: translateY(0); pointer-events: auto; }
-      #toast.error { background: rgba(220,38,38,0.92); color: #fee2e2; border-bottom: 1px solid rgba(248,113,113,0.5); backdrop-filter: blur(8px); }
-      #toast.info  { background: rgba(109,40,217,0.92); color: #ede9fe; border-bottom: 1px solid rgba(167,139,250,0.5); backdrop-filter: blur(8px); }
+    <!-- Center column -->
+    <main class="center-col">
 
-      .post-menu {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        cursor: pointer;
-        margin-left: auto;
-      }
-      .post-menu-btn { animation: none; background: none; padding: 0; font-size: 18px; line-height: 1; color: rgba(255,255,255,0.6); }
-      .post-menu-btn:hover { color: white; }
-      .post-menu-dropdown {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        background: rgba(20,20,30,0.95);
-        border: 1px solid rgba(139,92,246,0.4);
-        border-radius: 12px;
-        min-width: 140px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-        z-index: 1000;
-        display: none;
-      }
-      .post-menu-dropdown.open { display: block; }
-      .post-menu-dropdown button {
-        display: block;
-        width: 100%;
-        text-align: left;
-        background: none;
-        border: none;
-        color: rgba(255,255,255,0.8);
-        padding: 10px 14px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      .post-menu-dropdown button:first-child { border-radius: 11px 11px 0 0; }
-      .post-menu-dropdown button:last-child { border-radius: 0 0 11px 11px; }
-      .post-menu-dropdown button:hover { background: rgba(139,92,246,0.2); }
+      <!-- Home screen -->
+      <div id="homeView">
+        <div>
+          <div class="page-head"><h1>Home</h1></div>
+          <p class="page-sub">What's happening with your people</p>
+        </div>
+        <div class="chips hidden" id="areaStrip"></div>
+        <div id="announcements"></div>
 
-      .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.6);
-        display: none;
-        z-index: 2000;
-        align-items: center;
-        justify-content: center;
-      }
-      .modal-overlay.open { display: flex; }
-      .modal-dialog {
-        background: rgba(20,20,30,0.95);
-        border: 1px solid rgba(139,92,246,0.4);
-        border-radius: 16px;
-        padding: 24px;
-        max-width: 480px;
-        width: 90%;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      }
-      .modal-header { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-      .modal-close {
-        float: right;
-        background: none;
-        border: none;
-        color: rgba(255,255,255,0.6);
-        font-size: 24px;
-        cursor: pointer;
-        line-height: 1;
-        padding: 0;
-        width: 24px;
-        height: 24px;
-      }
-      .modal-close:hover { color: white; }
-      .modal-body {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .modal-body textarea {
-        width: 100%;
-        background: rgba(10,10,10,0.6);
-        border: 1px solid rgba(255,255,255,0.15);
-        color: white;
-        border-radius: 12px;
-        padding: 12px 14px;
-        font-family: "Quicksand", sans-serif;
-        font-size: 14px;
-        resize: vertical;
-        min-height: 100px;
-      }
-      .modal-body textarea:focus { outline: none; border-color: #8b5cf6; box-shadow: 0 0 12px rgba(139,92,246,0.4); }
-      .modal-footer {
-        display: flex;
-        gap: 10px;
-        margin-top: 16px;
-        justify-content: flex-end;
-      }
-      .modal-footer button { animation: none; padding: 8px 18px; font-size: 14px; }
-      .modal-footer .btn-cancel { background: rgba(255,255,255,0.08); }
-
-      .comments { margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; }
-      .comment { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px; font-size: 14px; }
-      .comment .c-body { flex: 1; }
-      .comment .c-author { font-weight: 700; color: #c4b5fd; cursor: pointer; }
-      .comment .c-author.nolink { cursor: default; }
-      .comment .c-time { font-size: 11px; color: rgba(255,255,255,0.4); margin-left: 6px; }
-      .comment .c-text { white-space: pre-wrap; word-break: break-word; }
-      .comment .c-del { animation: none; background: none; padding: 2px 8px; color: #fca5a5; font-size: 16px; line-height: 1; }
-      .comment .c-del:hover { background: rgba(239,68,68,0.2); box-shadow: none; }
-      .comment-form { display: flex; gap: 8px; margin-top: 8px; }
-      .comment-form input { flex: 1; background: rgba(10,10,10,0.6); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 20px; padding: 8px 14px; font-family: "Quicksand", sans-serif; font-size: 13px; }
-      .comment-form input:focus { outline: none; border-color: #8b5cf6; }
-      .comment-form button { animation: none; padding: 8px 16px; font-size: 13px; }
-
-      .profile { animation: none; }
-      .profile-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(139,92,246,0.3); border-radius: 18px; padding: 22px; margin: 16px 0 24px; text-align: center; }
-      .profile-card .avatar { width: 72px; height: 72px; font-size: 28px; margin: 0 auto 12px; }
-      .profile-name { font-family: "Orbitron", sans-serif; font-size: 20px; margin-bottom: 6px; }
-      .profile-bio { color: rgba(255,255,255,0.8); margin: 8px 0; white-space: pre-wrap; }
-      .profile-stats { display: flex; justify-content: center; gap: 24px; margin: 14px 0; color: #c4b5fd; }
-      .profile-stats b { display: block; font-size: 18px; }
-      .profile-audiences { margin: 10px 0; }
-      .profile-audiences .label { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
-      .profile-edit textarea { width: 100%; background: rgba(10,10,10,0.6); border: 1px solid rgba(255,255,255,0.15); color: white; border-radius: 12px; padding: 10px 12px; font-family: "Quicksand", sans-serif; font-size: 14px; }
-
-      .announcement {
-        position: relative; border-radius: 16px; padding: 16px 44px 16px 18px; margin: 14px 0;
-        background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(236,72,153,0.18));
-        border: 1px solid rgba(236,72,153,0.45); box-shadow: 0 0 22px rgba(139,92,246,0.25);
-      }
-      .announcement .ann-label { font-family: "Orbitron", sans-serif; font-size: 11px; letter-spacing: 1px; color: #f9a8d4; margin-bottom: 6px; }
-      .announcement .ann-title { font-family: "Orbitron", sans-serif; font-size: 17px; margin-bottom: 4px; }
-      .announcement .ann-body { white-space: pre-wrap; word-break: break-word; }
-      .announcement .ann-time { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 8px; }
-      .announcement .ann-dismiss { position: absolute; top: 8px; right: 10px; cursor: pointer; color: rgba(255,255,255,0.6); background: none; border: none; font-size: 20px; line-height: 1; }
-      .announcement .ann-dismiss:hover { color: white; }
-
-      .my-reports { animation: none; }
-      .my-reports-header { text-align: center; margin-bottom: 24px; }
-      .report-item {
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 12px;
-        padding: 14px;
-        margin-bottom: 12px;
-      }
-      .report-meta { font-size: 12px; color: rgba(255,255,255,0.5); display: flex; gap: 12px; margin-bottom: 8px; }
-      .report-reason { margin-bottom: 8px; }
-      .report-status {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 600;
-      }
-      .report-status.pending { background: rgba(245,158,11,0.2); color: #fcd34d; }
-      .report-status.reviewed { background: rgba(34,197,94,0.2); color: #86efac; }
-      .report-status.dismissed { background: rgba(75,85,99,0.2); color: #cbd5e1; }
-      .report-status.actioned { background: rgba(236,72,153,0.2); color: #f9a8d4; }
-
-      .empty { text-align: center; color: rgba(255,255,255,0.5); animation: none; }
-      .hidden { display: none !important; }
-    </style>
-  </head>
-  <body>
-    <p style="background-color: #FFC800; text-align:center; width: 100%;">This is an ALPHA test. Expect features to not work or be missing.</p>
-
-    <div class="content-wrapper">
-      <div id="toast"></div>
-
-      <div class="feed">
-        <h1 style="text-align: center;">CONNECTED</h1>
-        <p style="text-align: center;">Share something with the <x style="font-family: 'Orbitron', sans-serif;">SCHOOL</x>.</p>
-
-        <div class="auth-bar">
-          <div class="auth-user hidden" id="authUser" title="View your profile">
-            <span class="avatar sm" id="userAvatar"></span><span id="userName"></span>
+        <div class="signin-card" id="signinPrompt">
+          <p>Sign in to join in — post, react, and connect.</p>
+          <button class="btn-google" id="signInBtn">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            Continue with Google
+          </button>
+          <button class="email-auth-toggle" id="emailAuthToggle">Sign in with email instead</button>
+          <div class="email-auth-form" id="emailAuthForm">
+            <input type="email" id="emailAuthEmail" placeholder="Email" autocomplete="email" />
+            <input type="password" id="emailAuthPassword" placeholder="Password" autocomplete="current-password" />
+            <button type="button" class="btn-email" id="emailAuthSubmit">Sign in</button>
+            <div class="email-auth-err" id="emailAuthErr"></div>
           </div>
-          <button class="btn-secondary hidden" id="myReportsBtn">My Reports</button>
-          <button class="btn-secondary hidden" id="signOutBtn">Sign out</button>
-          <a class="updates-link" href="../updates.html">Updates</a>
-          <button id="searchToggle" title="Search">🔍</button>
         </div>
 
-        <div class="search-bar hidden" id="searchBar">
+        <div class="post-prompt hidden" id="postPrompt">
+          <span class="av" id="promptAvatar" style="width:40px;height:40px;font-size:16px;background:var(--primary)"></span>
+          <div class="post-prompt-fake">Share something with your people…</div>
+          <button class="post-prompt-btn" id="postPromptBtn">Post</button>
+        </div>
+
+        <form class="composer-card hidden" id="composer">
+          <div class="composer-row">
+            <span class="av" id="composerAvatar" style="width:40px;height:40px;font-size:16px;background:var(--primary)"></span>
+            <input class="composer-title-input" id="title" type="text" maxlength="200" placeholder="Add a title (optional)" />
+          </div>
+          <textarea class="composer-body-input" id="content" rows="3" maxlength="4000" placeholder="What do you want to share?"></textarea>
+          <div class="composer-bar">
+            <div class="area-picks" id="areaPicks"></div>
+            <button type="submit" class="composer-submit" id="postBtn">Post</button>
+          </div>
+          <div class="status-msg" id="status"></div>
+        </form>
+
+        <div class="feed-tabs" id="feedToggle">
+          <button class="feed-tab active" id="tabForYou">For You</button>
+          <button class="feed-tab" id="tabLatest">Latest</button>
+          <video id="tabTransition" class="tab-transition" muted playsinline preload="auto" aria-hidden="true"></video>
+        </div>
+
+        <div id="posts"><div class="mellow-loader"><div class="ml-stage"><span class="ml-marsh"></span><span class="ml-stick"></span><span class="ml-flame"></span></div><div class="ml-label">Warming up the feed…</div></div></div>
+      </div>
+
+      <!-- Search screen -->
+      <div id="searchView" class="hidden">
+        <div>
+          <div class="page-head"><h1>Search</h1></div>
+          <p class="page-sub">Find posts and people</p>
+        </div>
+        <div class="searchbox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
           <input id="searchInput" type="text" placeholder="Search posts and people…" autocomplete="off" />
-          <button class="search-clear" id="searchClear">×</button>
+          <button class="search-clear-btn hidden" id="searchClear">×</button>
         </div>
+        <!-- hidden legacy refs -->
+        <div class="hidden" id="searchBar"></div>
+        <div id="searchResults"><p class="empty">Start typing to search…</p></div>
+      </div>
 
-        <!-- ===== Home (feed) view ===== -->
-        <div id="homeView">
-          <div class="area-strip hidden" id="areaStrip"></div>
-          <div id="announcements"></div>
-
-          <div class="signin-prompt" id="signinPrompt">
-            <p>Sign in to post, like, comment and follow.</p>
-            <button class="btn-google" id="signInBtn">
-              <svg viewBox="0 0 48 48" aria-hidden="true">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-              </svg>
-              Continue with Google
-            </button>
-          </div>
-
-          <form class="composer hidden" id="composer">
-            <input id="title" type="text" maxlength="200" placeholder="Title" />
-            <select id="areaSelect"><option value="">📌 No area</option></select>
-            <textarea id="content" rows="3" maxlength="4000" placeholder="What do you want to share?" required></textarea>
-            <button type="submit" id="postBtn">Post</button>
-            <div class="status" id="status"></div>
-          </form>
-
-          <div class="feed-toggle" id="feedToggle">
-            <button id="tabForYou" class="active">For You</button>
-            <button id="tabLatest">Latest</button>
-          </div>
-
-          <div id="posts"><p class="empty">Loading the feed…</p></div>
+      <!-- Areas screen -->
+      <div id="areasView" class="hidden">
+        <div>
+          <div class="page-head"><h1>Areas</h1></div>
+          <p class="page-sub">Jump into a corner of the community</p>
         </div>
+        <div class="areas-grid" id="areasGrid"></div>
+        <button class="suggest-area-btn-big" id="suggestAreaTrigger" style="margin-top:14px">+ Suggest an area</button>
+      </div>
 
-        <!-- ===== Profile view ===== -->
-        <div id="profileView" class="profile hidden">
-          <button class="btn-secondary" id="backBtn">← Back to feed</button>
-          <div id="profileBody"></div>
-        </div>
+      <!-- Profile screen -->
+      <div id="profileView" class="hidden">
+        <div id="profileBody"></div>
+      </div>
 
-        <!-- ===== My Reports view ===== -->
-        <div id="myReportsView" class="my-reports hidden">
-          <button class="btn-secondary" id="backToFeedBtn">← Back to feed</button>
-          <div class="my-reports-header">
-            <h2>My Reports</h2>
-            <p style="color: rgba(255,255,255,0.6); font-size: 14px; margin-top: 4px;">Track the status of reports you've submitted</p>
-          </div>
-          <div id="reportsList"><p class="empty">No reports yet.</p></div>
-        </div>
+      <!-- My Reports screen -->
+      <div id="myReportsView" class="hidden">
+        <div class="page-head" style="margin-bottom:4px"><h1>My Reports</h1></div>
+        <p class="page-sub" style="margin-bottom:16px">Track the status of your submitted reports</p>
+        <!-- hidden legacy button -->
+        <button class="hidden" id="backToFeedBtn"></button>
+        <button class="hidden" id="backBtn"></button>
+        <div id="reportsList"><p class="empty">No reports yet.</p></div>
+      </div>
 
-        <p style="text-align: center; margin-top: 30px;">
-          <a href="../index.html"><button>Go back home</button></a>
-        </p>
+    </main>
+
+    <!-- Right rail -->
+    <aside class="right-rail">
+      <div id="railAnnouncement"></div>
+      <div class="rail-card">
+        <img class="rail-gif" src="assets/trending.gif" alt="" aria-hidden="true" onerror="this.remove()" />
+        <p class="rail-title">Trending areas</p>
+        <div id="railAreas"></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile bottom tab bar -->
+  <nav class="mobile-tabbar">
+    <button class="tab-item active" data-screen="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      Home
+    </button>
+    <button class="tab-item" data-screen="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+      Search
+    </button>
+    <button class="fab-tab" id="fabNewPost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button class="tab-item" data-screen="areas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
+      Areas
+    </button>
+    <button class="tab-item" data-screen="profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+      Profile
+    </button>
+  </nav>
+
+  <!-- Report Modal -->
+  <div class="modal-overlay" id="reportModal">
+    <div class="modal-dialog">
+      <button class="modal-close" id="reportModalClose">×</button>
+      <div class="modal-header">Report <span id="reportWhat"></span></div>
+      <div class="modal-body">
+        <textarea id="reportReason" maxlength="1000" placeholder="Tell us why you're reporting this (required)"></textarea>
+        <div id="reportStatus" style="text-align:center;min-height:20px;font-size:14px;color:var(--primary)"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="reportCancel">Cancel</button>
+        <button class="btn-primary-modal" id="reportSubmit">Submit Report</button>
       </div>
     </div>
+  </div>
 
-    <!-- Report Modal -->
-    <div class="modal-overlay" id="reportModal">
-      <div class="modal-dialog">
-        <button class="modal-close" id="reportModalClose">×</button>
-        <div class="modal-header">Report <span id="reportWhat"></span></div>
-        <div class="modal-body">
-          <textarea id="reportReason" maxlength="1000" placeholder="Tell us why you're reporting this (required)"></textarea>
-          <div id="reportStatus" style="text-align:center; min-height:20px; font-size:14px; color:#a78bfa;"></div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-cancel" id="reportCancel">Cancel</button>
-          <button id="reportSubmit">Submit Report</button>
-        </div>
+  <!-- Suggest Area Modal -->
+  <div class="modal-overlay" id="suggestAreaModal">
+    <div class="modal-dialog">
+      <button class="modal-close" id="suggestAreaClose">×</button>
+      <div class="modal-header">Suggest an Area</div>
+      <div class="modal-body">
+        <p style="color:#727a8c;font-size:13px">Suggestions are reviewed by admins. You'll stay anonymous.</p>
+        <input id="suggestAreaName" type="text" maxlength="50" placeholder="Area name (required)" />
+        <textarea id="suggestAreaReason" maxlength="300" placeholder="Why would this be useful? (optional)" style="min-height:80px"></textarea>
+        <div id="suggestAreaStatus" style="text-align:center;min-height:18px;font-size:14px;color:var(--primary)"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="suggestAreaCancel">Cancel</button>
+        <button class="btn-primary-modal" id="suggestAreaSubmit">Submit Suggestion</button>
       </div>
     </div>
+  </div>
 
-    <!-- Suggest Area Modal -->
-    <div class="modal-overlay" id="suggestAreaModal">
-      <div class="modal-dialog">
-        <button class="modal-close" id="suggestAreaClose">×</button>
-        <div class="modal-header">Suggest an Area</div>
-        <div class="modal-body">
-          <p style="color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:4px;">Suggestions are reviewed by admins. You'll stay anonymous.</p>
-          <input id="suggestAreaName" type="text" maxlength="50" placeholder="Area name (required)"
-            style="width:100%;background:rgba(10,10,10,0.6);border:1px solid rgba(255,255,255,0.15);color:white;border-radius:12px;padding:10px 14px;font-family:'Quicksand',sans-serif;font-size:14px;" />
-          <textarea id="suggestAreaReason" maxlength="300" placeholder="Why would this be useful? (optional)"></textarea>
-          <div id="suggestAreaStatus" style="text-align:center;min-height:18px;font-size:14px;color:#a78bfa;"></div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-cancel" id="suggestAreaCancel">Cancel</button>
-          <button id="suggestAreaSubmit">Submit Suggestion</button>
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-dialog">
+      <button class="modal-close" data-act="close-settings">×</button>
+      <div class="modal-header">⚙️ Settings</div>
+      <div class="modal-body">
+        <label class="setting-row">
+          <div class="setting-text">
+            <div class="setting-title">Add more motion</div>
+            <div class="setting-sub">Mellow keeps things calm by default. Turn this on for extra playful animation — you can switch it off any time from the button up top.</div>
+          </div>
+          <span class="switch"><input type="checkbox" id="moreMotionToggle" /><span class="switch-track"></span></span>
+        </label>
+        <label class="setting-row">
+          <div class="setting-text">
+            <div class="setting-title">🎪 TADC mode</div>
+            <div class="setting-sub">A little circus chaos — friends peek in from the bottom corners.</div>
+          </div>
+          <span class="switch"><input type="checkbox" id="tadcToggle" /><span class="switch-track"></span></span>
+        </label>
+        <div class="settings-experiments hidden" id="experimentSettings">
+          <div class="section-label">Experimental buttons</div>
+          <label class="setting-row">
+            <div class="setting-text">
+              <div class="setting-title">More motion button position</div>
+              <div class="setting-sub">Move the motion escape button to a different corner.</div>
+            </div>
+            <select class="setting-select" id="motionBtnDock">
+              <option value="top-right">Top right</option>
+              <option value="top-left">Top left</option>
+              <option value="bottom-right">Bottom right</option>
+              <option value="bottom-left">Bottom left</option>
+            </select>
+          </label>
+          <label class="setting-row">
+            <div class="setting-text">
+              <div class="setting-title">Shred GUI button position</div>
+              <div class="setting-sub">Choose where the experimental GUI shredder floats.</div>
+            </div>
+            <select class="setting-select" id="shredBtnDock">
+              <option value="bottom-left">Bottom left</option>
+              <option value="top-left">Top left</option>
+              <option value="bottom-right">Bottom right</option>
+              <option value="top-right">Top right</option>
+            </select>
+          </label>
         </div>
       </div>
+      <div class="modal-footer">
+        <button class="btn-primary-modal" data-act="close-settings">Done</button>
+      </div>
     </div>
+  </div>
 
-    <script type="module" src="script.js"></script>
-  </body>
+  <script>if(new URLSearchParams(location.search).has('debug')){var d=document.createElement('script');d.src='debug.js';document.head.appendChild(d);}</script>
+  <script type="module" src="script.js"></script>
+</body>
 </html>
