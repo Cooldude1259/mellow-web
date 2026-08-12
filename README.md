@@ -1,5 +1,16 @@
 # Mellow
 # $$\color{red}{\text{SECURITY WARNING}}$$
+This app is not complete. No privacy features are present anywhere within the application. Please do not use the application until this warning has been removed.
+### Broken Features
+- Username
+- Google sign in provided name (publicaly available by default, not possible to disable yet)
+- Email exposed using password sign-in
+- No Seperation for age groups
+- No Moderation on messages
+- No preventing innapropriate material to younger audiences
+# $$\color{red}{\text{END OF SECURITY WARNING}}$$
+Security warning is still in effect.
+
 ![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![HTML](https://img.shields.io/badge/Language-HTML-orange.svg)
 ![Status](https://img.shields.io/badge/Status-Alpha-yellow.svg)
