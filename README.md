@@ -38,6 +38,7 @@ Mellow is deliberately **buildless static HTML** — no framework, no build step
   custom properties (see Theming below)
 - **Fonts**: Bricolage Grotesque (headings) + Hanken Grotesque (body)
 - **Auth & data**: Supabase (JS SDK loaded from a CDN), schema `social-media-public`
+- **Localization (prototype)**: Crowdin-managed locale JSON files in `app/i18n/`, synced by `.github/workflows/crowdin-sync.yml`
 - **Backend (planned)**: a Vercel service reached only via a Supabase
   `proxy_api` edge function, for agent/AI work
 

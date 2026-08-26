@@ -17,6 +17,75 @@
 
   const NATIVE_AUTH = !!(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.nativeAuth);
   const $ = (id) => document.getElementById(id);
+  const I18N_DEFAULT_LOCALE = 'en-AU';
+  const I18N_STORAGE_KEY = 'mellow_locale';
+  const I18N_SUPPORTED_LOCALES = ['en-AU', 'fr', 'es-ES', 'de', 'el', 'ga-IE', 'it', 'ja', 'ko', 'nl', 'ru', 'lol'];
+  let activeLocale = I18N_DEFAULT_LOCALE;
+  let i18nMessages = {};
+
+  function normalizeLocale(locale) {
+    return String(locale || '').trim().replace('_', '-');
+  }
+  function localeToFile(locale) {
+    return normalizeLocale(locale).toLowerCase().replace(/-/g, '_');
+  }
+  function t(key, fallback = key) {
+    const value = key.split('.').reduce((acc, seg) => (acc && acc[seg] != null ? acc[seg] : undefined), i18nMessages);
+    return typeof value === 'string' ? value : fallback;
+  }
+  function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const fallback = el.dataset.i18nFallback || el.textContent;
+      el.dataset.i18nFallback = fallback;
+      el.textContent = t(el.dataset.i18n, fallback);
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+      const fallback = el.dataset.i18nPlaceholderFallback || el.getAttribute('placeholder') || '';
+      el.dataset.i18nPlaceholderFallback = fallback;
+      el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder, fallback));
+    });
+    document.documentElement.lang = normalizeLocale(activeLocale) || 'en-AU';
+  }
+  async function loadMessages(locale) {
+    const file = localeToFile(locale);
+    const res = await fetch(`i18n/${file}.json`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Locale load failed: ${locale}`);
+    return res.json();
+  }
+  async function setLocale(locale) {
+    const normalized = normalizeLocale(locale);
+    if (!I18N_SUPPORTED_LOCALES.includes(normalized)) return;
+    try {
+      i18nMessages = await loadMessages(normalized);
+      activeLocale = normalized;
+      localStorage.setItem(I18N_STORAGE_KEY, normalized);
+      applyI18n();
+    } catch (err) {
+      console.error('i18n setLocale failed', err);
+    }
+  }
+  async function initI18n() {
+    const stored = normalizeLocale(localStorage.getItem(I18N_STORAGE_KEY));
+    const browser = normalizeLocale((navigator.languages && navigator.languages[0]) || navigator.language || '');
+    const browserBase = browser.split('-')[0];
+    const candidate = [
+      stored,
+      browser,
+      browserBase,
+      browserBase && I18N_SUPPORTED_LOCALES.find((l) => l.toLowerCase().startsWith(browserBase.toLowerCase() + '-')),
+      I18N_DEFAULT_LOCALE,
+    ]
+      .find((value) => value && I18N_SUPPORTED_LOCALES.includes(value));
+    activeLocale = candidate || I18N_DEFAULT_LOCALE;
+    try {
+      i18nMessages = await loadMessages(activeLocale);
+    } catch (err) {
+      console.warn('i18n default locale fallback', err);
+      i18nMessages = await loadMessages(I18N_DEFAULT_LOCALE);
+      activeLocale = I18N_DEFAULT_LOCALE;
+    }
+    applyI18n();
+  }
 
   // ---- Debug trace (?debug) ----
   // Zero-cost unless the page is opened with ?debug. Each trace() call reports
@@ -229,6 +298,8 @@
     if (mm) mm.checked = !!(window.isMoreMotion && window.isMoreMotion());
     const tt = $('tadcToggle');
     if (tt) tt.checked = !!(window.isTadc && window.isTadc());
+    const ls = $('languageSelect');
+    if (ls) ls.value = activeLocale;
     const exp = $('experimentSettings');
     exp?.classList.toggle('hidden', !EXPERIMENTS_MODE);
     if (EXPERIMENTS_MODE) {
@@ -242,6 +313,7 @@
   function closeSettings() { $('settingsModal')?.classList.remove('open'); }
   $('moreMotionToggle')?.addEventListener('change', (e) => { window.setMoreMotion?.(e.target.checked); });
   $('tadcToggle')?.addEventListener('change', (e) => { window.setTadc?.(e.target.checked); });
+  $('languageSelect')?.addEventListener('change', (e) => { setLocale(e.target.value); });
   $('motionBtnDock')?.addEventListener('change', (e) => applyButtonLayout({ ...buttonLayout, motionOffBtn: e.target.value }));
   $('shredBtnDock')?.addEventListener('change', (e) => applyButtonLayout({ ...buttonLayout, shredGuiBtn: e.target.value }));
   $('settingsModal')?.addEventListener('click', (e) => { if (e.target === $('settingsModal')) closeSettings(); });
@@ -1222,6 +1294,7 @@
 
   // ---- Init ----
   (async () => {
+    await initI18n();
     const { data } = await supabase.auth.getSession();
     await applyAuthState(data.session);
     await loadAreas();

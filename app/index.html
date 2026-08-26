@@ -121,34 +121,34 @@
       </div>
       <button class="nav-item active" id="navHome" data-screen="home">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
-        Home
+        <span data-i18n="nav.home">Home</span>
       </button>
       <button class="nav-item" id="navSearch" data-screen="search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
-        Search
+        <span data-i18n="nav.search">Search</span>
       </button>
       <button class="nav-item" id="navAreas" data-screen="areas">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
-        Areas
+        <span data-i18n="nav.areas">Areas</span>
       </button>
       <button class="nav-item" id="navProfile" data-screen="profile">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
-        Profile
+        <span data-i18n="nav.profile">Profile</span>
       </button>
       <button class="new-post-btn" id="sidebarNewPost">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        New post
+        <span data-i18n="nav.new_post">New post</span>
       </button>
       <div class="me-row hidden" id="sidebarMe">
         <span class="av" id="sidebarAvatar" style="width:38px;height:38px;font-size:15px;background:var(--primary)"></span>
         <div>
           <div class="me-name" id="sidebarName"></div>
-          <div class="me-sub">You</div>
+          <div class="me-sub" data-i18n="common.you">You</div>
         </div>
       </div>
-      <button class="signout-btn" data-act="support">💬 Help &amp; Support</button>
-      <button class="signout-btn" data-act="status">🟢 Service status</button>
-      <button class="signout-btn hidden" id="signOutBtn">Sign out</button>
+      <button class="signout-btn" data-act="support">💬 <span data-i18n="support.help">Help &amp; Support</span></button>
+      <button class="signout-btn" data-act="status">🟢 <span data-i18n="support.status">Service status</span></button>
+      <button class="signout-btn hidden" id="signOutBtn" data-i18n="nav.sign_out">Sign out</button>
       <!-- kept hidden for JS compat -->
       <button class="hidden" id="myReportsBtn"></button>
       <button class="hidden" id="authUser"></button>
@@ -161,14 +161,14 @@
       <!-- Home screen -->
       <div id="homeView">
         <div>
-          <div class="page-head"><h1>Home</h1></div>
-          <p class="page-sub">What's happening with your people</p>
+          <div class="page-head"><h1 data-i18n="home.title">Home</h1></div>
+          <p class="page-sub" data-i18n="home.subtitle">What's happening with your people</p>
         </div>
         <div class="chips hidden" id="areaStrip"></div>
         <div id="announcements"></div>
 
         <div class="signin-card" id="signinPrompt">
-          <p>Sign in to join in — post, react, and connect.</p>
+          <p data-i18n="auth.sign_in_prompt">Sign in to join in — post, react, and connect.</p>
           <button class="btn-google" id="signInBtn">
             <svg viewBox="0 0 48 48" aria-hidden="true">
               <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -176,69 +176,69 @@
               <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
               <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
             </svg>
-            Continue with Google
+            <span data-i18n="auth.sign_in_google">Continue with Google</span>
           </button>
-          <button class="email-auth-toggle" id="emailAuthToggle">Sign in with email instead</button>
+          <button class="email-auth-toggle" id="emailAuthToggle" data-i18n="auth.sign_in_email_toggle">Sign in with email instead</button>
           <div class="email-auth-form" id="emailAuthForm">
-            <input type="email" id="emailAuthEmail" placeholder="Email" autocomplete="email" />
-            <input type="password" id="emailAuthPassword" placeholder="Password" autocomplete="current-password" />
-            <button type="button" class="btn-email" id="emailAuthSubmit">Sign in</button>
+            <input type="email" id="emailAuthEmail" placeholder="Email" autocomplete="email" data-i18n-placeholder="auth.email" />
+            <input type="password" id="emailAuthPassword" placeholder="Password" autocomplete="current-password" data-i18n-placeholder="auth.password" />
+            <button type="button" class="btn-email" id="emailAuthSubmit" data-i18n="auth.sign_in">Sign in</button>
             <div class="email-auth-err" id="emailAuthErr"></div>
           </div>
         </div>
 
         <div class="post-prompt hidden" id="postPrompt">
           <span class="av" id="promptAvatar" style="width:40px;height:40px;font-size:16px;background:var(--primary)"></span>
-          <div class="post-prompt-fake">Share something with your people…</div>
-          <button class="post-prompt-btn" id="postPromptBtn">Post</button>
+          <div class="post-prompt-fake" data-i18n="home.post_prompt">Share something with your people…</div>
+          <button class="post-prompt-btn" id="postPromptBtn" data-i18n="home.post_button">Post</button>
         </div>
 
         <form class="composer-card hidden" id="composer">
           <div class="composer-row">
             <span class="av" id="composerAvatar" style="width:40px;height:40px;font-size:16px;background:var(--primary)"></span>
-            <input class="composer-title-input" id="title" type="text" maxlength="200" placeholder="Add a title (optional)" />
+            <input class="composer-title-input" id="title" type="text" maxlength="200" placeholder="Add a title (optional)" data-i18n-placeholder="composer.title_placeholder" />
           </div>
-          <textarea class="composer-body-input" id="content" rows="3" maxlength="4000" placeholder="What do you want to share?"></textarea>
+          <textarea class="composer-body-input" id="content" rows="3" maxlength="4000" placeholder="What do you want to share?" data-i18n-placeholder="composer.body_placeholder"></textarea>
           <div class="composer-bar">
             <div class="area-picks" id="areaPicks"></div>
-            <button type="submit" class="composer-submit" id="postBtn">Post</button>
+            <button type="submit" class="composer-submit" id="postBtn" data-i18n="home.post_button">Post</button>
           </div>
           <div class="status-msg" id="status"></div>
         </form>
 
         <div class="feed-tabs" id="feedToggle">
-          <button class="feed-tab active" id="tabForYou">For You</button>
-          <button class="feed-tab" id="tabLatest">Latest</button>
+          <button class="feed-tab active" id="tabForYou" data-i18n="feed.for_you">For You</button>
+          <button class="feed-tab" id="tabLatest" data-i18n="feed.latest">Latest</button>
           <video id="tabTransition" class="tab-transition" muted playsinline preload="auto" aria-hidden="true"></video>
         </div>
 
-        <div id="posts"><div class="mellow-loader"><div class="ml-stage"><span class="ml-marsh"></span><span class="ml-stick"></span><span class="ml-flame"></span></div><div class="ml-label">Warming up the feed…</div></div></div>
+        <div id="posts"><div class="mellow-loader"><div class="ml-stage"><span class="ml-marsh"></span><span class="ml-stick"></span><span class="ml-flame"></span></div><div class="ml-label" data-i18n="feed.loading">Warming up the feed…</div></div></div>
       </div>
 
       <!-- Search screen -->
       <div id="searchView" class="hidden">
         <div>
-          <div class="page-head"><h1>Search</h1></div>
-          <p class="page-sub">Find posts and people</p>
+          <div class="page-head"><h1 data-i18n="search.title">Search</h1></div>
+          <p class="page-sub" data-i18n="search.subtitle">Find posts and people</p>
         </div>
         <div class="searchbox">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
-          <input id="searchInput" type="text" placeholder="Search posts and people…" autocomplete="off" />
+          <input id="searchInput" type="text" placeholder="Search posts and people…" autocomplete="off" data-i18n-placeholder="search.placeholder" />
           <button class="search-clear-btn hidden" id="searchClear">×</button>
         </div>
         <!-- hidden legacy refs -->
         <div class="hidden" id="searchBar"></div>
-        <div id="searchResults"><p class="empty">Start typing to search…</p></div>
+        <div id="searchResults"><p class="empty" data-i18n="search.start_typing">Start typing to search…</p></div>
       </div>
 
       <!-- Areas screen -->
       <div id="areasView" class="hidden">
         <div>
-          <div class="page-head"><h1>Areas</h1></div>
-          <p class="page-sub">Jump into a corner of the community</p>
+          <div class="page-head"><h1 data-i18n="areas.title">Areas</h1></div>
+          <p class="page-sub" data-i18n="areas.subtitle">Jump into a corner of the community</p>
         </div>
         <div class="areas-grid" id="areasGrid"></div>
-        <button class="suggest-area-btn-big" id="suggestAreaTrigger" style="margin-top:14px">+ Suggest an area</button>
+        <button class="suggest-area-btn-big" id="suggestAreaTrigger" style="margin-top:14px" data-i18n="areas.suggest">+ Suggest an area</button>
       </div>
 
       <!-- Profile screen -->
@@ -273,22 +273,22 @@
   <nav class="mobile-tabbar">
     <button class="tab-item active" data-screen="home">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
-      Home
+    <span data-i18n="nav.home">Home</span>
     </button>
     <button class="tab-item" data-screen="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
-      Search
+    <span data-i18n="nav.search">Search</span>
     </button>
     <button class="fab-tab" id="fabNewPost">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     </button>
     <button class="tab-item" data-screen="areas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
-      Areas
+    <span data-i18n="nav.areas">Areas</span>
     </button>
     <button class="tab-item" data-screen="profile">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
-      Profile
+    <span data-i18n="nav.profile">Profile</span>
     </button>
   </nav>
 
@@ -332,6 +332,26 @@
       <button class="modal-close" data-act="close-settings">×</button>
       <div class="modal-header">⚙️ Settings</div>
       <div class="modal-body">
+        <label class="setting-row">
+          <div class="setting-text">
+            <div class="setting-title" data-i18n="settings.language_title">Language</div>
+            <div class="setting-sub" data-i18n="settings.language_sub">Choose your app language.</div>
+          </div>
+          <select class="setting-select" id="languageSelect">
+            <option value="en-AU">English (Australia)</option>
+            <option value="fr">Français</option>
+            <option value="es-ES">Español (España)</option>
+            <option value="de">Deutsch</option>
+            <option value="el">Ελληνικά</option>
+            <option value="ga-IE">Gaeilge</option>
+            <option value="it">Italiano</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+            <option value="nl">Nederlands</option>
+            <option value="ru">Русский</option>
+            <option value="lol">LOLCAT</option>
+          </select>
+        </label>
         <label class="setting-row">
           <div class="setting-text">
             <div class="setting-title">Add more motion</div>
