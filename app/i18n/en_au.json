@@ -1,0 +1,43 @@
+{
+  "app": {
+    "name": "Mellow",
+    "tagline": "Social media that's actually on your side."
+  },
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "areas": "Areas",
+    "profile": "Profile",
+    "new_post": "New post",
+    "sign_out": "Sign out"
+  },
+  "auth": {
+    "sign_in_google": "Continue with Google",
+    "sign_in_email_toggle": "Sign in with email instead",
+    "email": "Email",
+    "password": "Password",
+    "sign_in": "Sign in"
+  },
+  "home": {
+    "title": "Home",
+    "subtitle": "What's happening with your people",
+    "post_prompt": "Share something with your people…",
+    "post_button": "Post"
+  },
+  "feed": {
+    "for_you": "For You",
+    "latest": "Latest",
+    "loading": "Warming up the feed…"
+  },
+  "support": {
+    "help": "Help & Support",
+    "status": "Service status"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "loading": "Loading…",
+    "error_generic": "Something went wrong."
+  }
+}
